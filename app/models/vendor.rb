@@ -6,7 +6,6 @@ class Vendor
 
   scope :by_updated_at, -> { order(updated_at: :desc) }
 
-  has_many :products, dependent: :destroy
   has_many :patients, dependent: :destroy, foreign_key: 'correlation_id', class_name: 'CQM::VendorPatient'
   embeds_many :points_of_contact, class_name: 'PointOfContact', cascade_callbacks: true
 
@@ -52,36 +51,8 @@ class Vendor
     super
   end
 
-  def status
-    Rails.cache.fetch("#{cache_key}/status") do
-      total = products.size
-      if products_failing_count.positive?
-        'failing'
-      elsif products_passing_count == total && total.positive?
-        'passing'
-      elsif products_errored_count.positive?
-        'errored'
-      else
-        'incomplete'
-      end
-    end
-  end
-
-  %w[passing failing errored incomplete].each do |product_state|
-    define_method "products_#{product_state}_count" do
-      product_counts = Rails.cache.fetch("#{cache_key}/product_counts") do
-        products.includes(:product_tests).group_by(&:status)
-      end
-
-      product_counts.key?(product_state) ? product_counts[product_state].count : 0
-    end
-  end
-
   def header_fields?
     url? || address? || !points_of_contact.empty?
   end
 
-  def favorite_products(current_user)
-    products.ordered_for_vendors.where(favorite_user_ids: current_user.id)
-  end
 end
