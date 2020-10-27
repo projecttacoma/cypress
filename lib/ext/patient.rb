@@ -14,7 +14,7 @@ module CQM
     # This allows us to instantiate Patients that do not belong to specific type of patient
     # for the purposes of testing but blocks us from saving them to the database to ensure
     # every patient actually in the database is of a valid type.
-    validates :_type, inclusion: %w[CQM::BundlePatient CQM::VendorPatient CQM::ProductTestPatient CQM::TestExecutionPatient]
+    validates :_type, inclusion: %w[CQM::BundlePatient CQM::VendorPatient]
 
     after_initialize do
       self[:addresses] ||= [CQM::Address.new(
@@ -36,15 +36,9 @@ module CQM
       delete
     end
 
-    def product_test
-      ProductTest.where('_id' => correlation_id).most_recent
-    end
-
     def bundle
       if !self['bundleId'].nil?
         Bundle.find(self['bundleId'])
-      elsif !correlation_id.nil?
-        ProductTest.find(correlation_id).bundle
       end
     end
 
@@ -179,14 +173,8 @@ module CQM
   class BundlePatient < Patient; end
 
   class VendorPatient < Patient; end
-
-  class ProductTestPatient < Patient; end
-
-  class TestExecutionPatient < Patient; end
 end
 
 Patient = CQM::Patient
 BundlePatient = CQM::BundlePatient
 VendorPatient = CQM::VendorPatient
-ProductTestPatient = CQM::ProductTestPatient
-TestExecutionPatient = CQM::TestExecutionPatient

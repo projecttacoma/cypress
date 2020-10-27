@@ -36,11 +36,7 @@ module Cypress
     end
 
     def export(patient)
-      cat1_submission_program = if patient.product_test&.product&.c3_test
-                                  patient.product_test&.measures&.first&.reporting_program_type == 'eh' ? 'HQR_IQR' : false
-                                else
-                                  false
-                                end
+      cat1_submission_program = false
       options = { provider: patient.providers.first,
                   patient_addresses: patient.addresses,
                   patient_telecoms: patient.telecoms,
@@ -87,10 +83,9 @@ module Cypress
       return unless patients.first
 
       first = patients.first
-      ptest = first.product_test
-      measures = ptest ? ptest.measures : patients.first.bundle.measures
-      start_date = ptest ? ptest.start_date : Time.at(patients.first.bundle.measure_period_start).in_time_zone
-      end_date = ptest ? ptest.end_date : start_date + 1.year
+      measures = patients.first.bundle.measures
+      start_date = Time.at(patients.first.bundle.measure_period_start).in_time_zone
+      end_date = start_date + 1.year
       [measures, start_date, end_date]
     end
 

@@ -28,55 +28,6 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :products, only: %i[show edit update destroy favorite] do
-    post :favorite
-    resources :product_tests, only: %i[index show]
-    resources :program_tests, only: %i[index show update]
-    resources :checklist_tests, only: %i[create show update destroy] do
-      member do
-        get :print_criteria
-      end
-    end
-    member do
-      get :download_full_test_deck
-    end
-  end
-
-  resources :checklist_tests, only: %i[create show update destroy] do
-    member do
-      get 'measure/:measure_id', action: 'measure', as: 'measure'
-    end
-  end
-
-  resources :product_tests, only: [:show] do
-    member do
-      get :patients
-      get :html_patients
-    end
-    resources :tasks, only: %i[index show]
-    resources :records, only: %i[index show] do
-      collection do
-        resources :tasks, controller: :records, only: %i[by_filter_task html_filter_patients] do
-          get :by_filter_task
-          get :html_filter_patients
-        end
-      end
-    end
-  end
-
-  resources :tasks, only: [:show] do
-    member do
-      get :good_results
-    end
-    resources :test_executions, only: %i[index show new create destroy]
-  end
-
-  resources :test_executions, only: %i[show destroy] do
-    member do
-      get 'file_result/:file_name', action: 'file_result', as: 'file_result'
-    end
-  end
-
   resources :bundles, only: %i[index show] do
     resources :records, only: %i[index show] do
       collection do
