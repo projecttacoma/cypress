@@ -77,17 +77,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def check_bundle_deprecated
-    deprecation_msg = 'The bundle this product is using has been deprecated. '\
-                      'You will still be able to run test executions however '\
-                      'no new products will be able to be created using this bundle.'
-    current_product = @product || @task&.product_test&.product || @product_test&.product
-    if current_product&.bundle&.deprecated?
-      flash.now['warning'] ||= []
-      flash.now['warning'] << deprecation_msg
-    end
-  end
-
   def check_bundle_installed
     unless any_bundle
       install_instr = APP_CONSTANTS['references']['install_guide']

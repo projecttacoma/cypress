@@ -41,7 +41,6 @@ Metrics/ClassLength:
   Max: 120
   Exclude:
     - 'test/**/*'
-    - 'app/models/product.rb'
     - 'app/models/checklist_source_data_criteria.rb'
     - 'app/controllers/records_controller.rb'
     - 'lib/ext/patient.rb'
@@ -82,7 +81,6 @@ Metrics/ParameterLists:
 Metrics/PerceivedComplexity:
   Max: 10
   Exclude:
-    - 'app/helpers/products_helper.rb'
     - 'lib/cypress/data_criteria_attribute_builder.rb'
     - 'lib/validators/checklist_criteria_validator.rb'
     - 'test/unit/lib/validators/checklist_criteria_validator_test.rb'

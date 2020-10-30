@@ -34,7 +34,6 @@ Metrics/BlockLength:
 # Include: app/models/**/*.rb
 Rails/InverseOf:
   Exclude:
-    - 'app/models/product_test.rb'
     - 'app/models/vendor.rb'
 
 # Offense count: 6

@@ -9,14 +9,6 @@ Rails.application.routes.draw do
     post :favorite
     get :preferences
     post :update_preferences
-    resources :products, only: %i[show index new create edit update destroy favorite] do
-      post :favorite
-      member do
-        get :patients
-        get :report
-        get :supplemental_test_artifact
-      end
-    end
     scope module: :vendors do
       resources :records, only: %i[index show new create] do
         collection do
@@ -34,12 +26,7 @@ Rails.application.routes.draw do
         get :by_measure
       end
     end
-    resources :measures, only: [:index] do
-      collection do
-        get :grouped
-        get 'filtered(/:filter)', to: 'measures#filtered'
-      end
-    end
+    resources :measures, only: [:index]
   end
 
   resources :records, only: %i[index show create] do
