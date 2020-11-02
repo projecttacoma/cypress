@@ -50,15 +50,6 @@ class RecordsControllerTest < ActionController::TestCase
     end
   end
 
-  # need negative tests for user that does not have owner or vendor access
-  # test 'should be able to restrict access to product test records unauthorized users ' do
-  #   for_each_logged_in_user([OTHER_VENDOR]) do
-  #     task_id = @product_test.tasks.first.id
-  #     get :index, params: { task_id: task_id }
-  #     assert_response 401
-  #   end
-  # end
-
   test 'should get patients by measure' do
     # do this for all users
     for_each_logged_in_user([ADMIN, ATL, OWNER, VENDOR, OTHER_VENDOR]) do
