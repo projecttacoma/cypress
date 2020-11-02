@@ -13,7 +13,7 @@ class RecordsController < ApplicationController
       return
     end
 
-    return redirect_to bundle_records_path(Bundle.default) unless params[:bundle_id] || params[:task_id] || params[:vendor_id]
+    return redirect_to bundle_records_path(Bundle.default) unless params[:bundle_id] || params[:vendor_id]
 
     # create json with the display_name and url for each measure
     @measure_dropdown = measures_for_source

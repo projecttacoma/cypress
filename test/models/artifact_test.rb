@@ -82,27 +82,6 @@ class ArtifactTest < ActiveSupport::TestCase
     assert data.index(%!{ "_id" : ObjectId( "507885343054cf8d83000002" )!).zero?, 'should be able to read file from archive'
   end
 
-  # def test_c1_task_should_accept_zip_files_not_xml_files
-  #   task = C1Task.new
-  #   zip_execution = task.test_executions.build
-  #   xml_execution = task.test_executions.build
-  #   root = Rails.root.join('tmp', 'test', 'artifacts')
-  #   FileUtils.mkdir_p(root)
-  #
-  #   zip_filename = "#{root}/good_file_extension.zip"
-  #   xml_filename = "#{root}/good_file_extension.xml"
-  #   FileUtils.touch(zip_filename)
-  #   FileUtils.touch(xml_filename)
-  #   zip_artifact = Artifact.new(file: File.new(zip_filename))
-  #   xml_artifact = Artifact.new(file: File.new(xml_filename))
-  #   xml_artifact.file.file.content_type = 'text/xml'
-  #   zip_artifact.test_execution = zip_execution
-  #   xml_artifact.test_execution = xml_execution
-  #
-  #   assert zip_artifact.save, 'C1 execution artifact should save with .zip extension'
-  #   assert_not xml_artifact.save, 'C1 execution artifact should not save with .xml extension'
-  # end
-
   def test_should_not_accept_non_xml_or_zip_files
     root = Rails.root.join('tmp', 'test', 'artifacts')
     FileUtils.mkdir_p(root)

@@ -41,7 +41,6 @@ Metrics/ClassLength:
   Max: 120
   Exclude:
     - 'test/**/*'
-    - 'app/models/checklist_source_data_criteria.rb'
     - 'app/controllers/records_controller.rb'
     - 'lib/ext/patient.rb'
     - 'lib/cypress/api_measure_evaluator.rb'
@@ -55,7 +54,6 @@ Metrics/AbcSize:
   # a Float.
   Max: 32
   Exclude:
-    - 'app/models/cms_program_task.rb'
     - 'lib/cypress/data_criteria_attribute_builder.rb'
     - 'lib/cypress/population_clone_job.rb'
     - 'test/**/*.rb'
@@ -70,8 +68,6 @@ Metrics/CyclomaticComplexity:
   Max: 10
   Exclude:
     - 'lib/cypress/data_criteria_attribute_builder.rb'
-    - 'lib/validators/checklist_criteria_validator.rb'
-    - 'test/unit/lib/validators/checklist_criteria_validator_test.rb'
     - 'test/unit/html_test.rb'
 Metrics/ParameterLists:
   Exclude:
@@ -82,8 +78,6 @@ Metrics/PerceivedComplexity:
   Max: 10
   Exclude:
     - 'lib/cypress/data_criteria_attribute_builder.rb'
-    - 'lib/validators/checklist_criteria_validator.rb'
-    - 'test/unit/lib/validators/checklist_criteria_validator_test.rb'
     - 'test/unit/html_test.rb'
 Naming/UncommunicativeMethodParamName:
   Enabled: false

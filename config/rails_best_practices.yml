@@ -29,26 +29,18 @@ RemoveUnusedMethodsInControllersCheck: {
     'ApplicationController#after_sign_out_path_for',
     'ApplicationController#catch_not_found',
     'TypeNotFound#authorize_vendor',
-    'AdminController#download_logs',
-
+    'AdminController#download_logs'
   ]
 }
 RemoveUnusedMethodsInHelpersCheck: {
   except_methods: [
     'XmlViewHelper#data_to_doc',
     'VersionConfigHelper#config_for_version',
-    'FilteringTestsHelper#generate_filter_patients',
-    'TestExecutionsHelper#get_title_message',
-    'MeasuresHelper#pick_measure_for_filtering_test',
-    'MeasuresHelper#should_reload_measure_test?',
     'ApplicationHelper#mpl_id?'
   ]
 }
 RemoveUnusedMethodsInModelsCheck: {
   except_methods: [
-    'MeasureTest#cat1_status',
-    'MeasureTest#cat3_status',
-    'ChecklistSourceDataCriteria#change_criteria',
     'ExecutionError#by_validation_type',
     'ExecutionError#submission_errors',
     'User#active_for_authentication?',

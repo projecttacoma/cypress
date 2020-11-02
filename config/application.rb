@@ -6,7 +6,6 @@ require 'sprockets/railtie'
 require 'rails/test_unit/railtie'
 require_relative '../lib/hash'
 
-CAT1_CONFIG = YAML.safe_load(File.read(File.expand_path('cat1checklist.yml', __dir__)), [], [], true)
 APP_CONSTANTS = YAML.safe_load(ERB.new(File.read(File.expand_path('cypress.yml', __dir__))).result, [], [], true)
 NAMES_RANDOM = YAML.safe_load(File.read(File.expand_path('names.yml', __dir__)), [], [], true)
 TEST_ATTRIBUTES = YAML.safe_load(File.read(File.expand_path('testing_attributes.yml', __dir__)), [], [], true)
