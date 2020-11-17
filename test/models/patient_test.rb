@@ -24,5 +24,4 @@ class PatientTest < ActiveSupport::TestCase
   def record_birthyear_equal?(r1, r2)
     r1.qdmPatient.birthDatetime.year == r2.qdmPatient.birthDatetime.year
   end
-
 end

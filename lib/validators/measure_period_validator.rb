@@ -26,14 +26,14 @@ module Validators
     end
 
     def validate_start
-      if !@doc_start_time
+      unless @doc_start_time
         msg = 'Document needs to report the Measurement Start Date'
         add_error(msg, error_options)
       end
     end
 
     def validate_end
-      if !@doc_end_time
+      unless @doc_end_time
         msg = 'Document needs to report the Measurement End Date'
         add_error(msg, error_options)
       end

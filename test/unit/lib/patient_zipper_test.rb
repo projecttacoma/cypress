@@ -35,7 +35,7 @@ class PatientZipperTest < ActiveSupport::TestCase
     assert_equal @patients.count, count, 'Zip file has wrong number of records'
   end
 
-# TODO: Restore this test?
+  # TODO: Restore this test?
   # test 'Should create valid qrda file with an encounter id' do
   #   format = :qrda
   #   filename = "pTest-#{Time.now.to_i}.qrda.zip"

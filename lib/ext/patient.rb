@@ -37,9 +37,7 @@ module CQM
     end
 
     def bundle
-      if !self['bundleId'].nil?
-        Bundle.find(self['bundleId'])
-      end
+      Bundle.find(self['bundleId']) unless self['bundleId'].nil?
     end
 
     def age_at(date)

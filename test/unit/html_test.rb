@@ -106,7 +106,6 @@ class HTMLTest < ActiveSupport::TestCase
     assert html.include?('Procedure contraindicated (situation)'), 'HTML should include negation rationale code description'
     assert html.include?('carvedilol 6.25 MG Oral Tablet'), 'HTML should include medication code description'
     # Note: code="60" from sdtc:valueSet="1.3.4.5" is unknown (fake) and therefore appropriately omits a description
-
   end
 
   # Get bundle from the demo server.  Use VCR if available

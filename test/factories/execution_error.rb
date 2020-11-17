@@ -320,6 +320,5 @@ FactoryBot.define do
       factory :smoking_gun_validator_validate_name, traits: [:validate_name]
       factory :smoking_gun_validator_validate_expected_results, traits: [:validate_expected_results]
     end
-
   end
 end

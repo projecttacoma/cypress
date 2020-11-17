@@ -8,7 +8,7 @@ class Artifact
                       'text/xml' => :xml }.freeze
 
   mount_uploader :file, DocumentUploader
-  
+
   field :content_type, type: String
   field :file_size, type: Integer
 

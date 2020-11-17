@@ -40,5 +40,4 @@ class Vendor
   def header_fields?
     url? || address? || !points_of_contact.empty?
   end
-
 end

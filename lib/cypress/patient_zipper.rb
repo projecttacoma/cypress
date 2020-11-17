@@ -84,7 +84,6 @@ module Cypress
     def self.measure_start_end(patients)
       return unless patients.first
 
-      first = patients.first
       measures = patients.first.bundle.measures
       start_date = Time.at(patients.first.bundle.measure_period_start).in_time_zone
       end_date = start_date + 1.year

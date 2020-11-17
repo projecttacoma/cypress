@@ -1,6 +1,5 @@
 module Cypress
   class CreateDownloadZip
-
     def self.bundle_directory(bundle, path)
       patients = bundle.patients
       %w[html qrda].each do |format|

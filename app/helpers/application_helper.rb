@@ -52,5 +52,4 @@ module ApplicationHelper
   def padded_cms_id(cms_id)
     cms_id.sub(/(?<=cms)(\d{1,3})/i) { Regexp.last_match(1).rjust(3, '0') }
   end
-
 end
