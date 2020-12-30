@@ -1,157 +1,66 @@
 <div class="row">
 <!-- Show measure calculation -->
 
+<%
+  pop_keys = RecordsHelper::PROPORTION_POPULATION_KEYS
+  measure_file = File.read('./tmp/fhir/measure-bundle.json')
+  measure_json = JSON.parse(measure_file)
+  patient_file = File.read('./tmp/fhir/patient-bundle.json')
+  patient_json = JSON.parse(patient_file)
+  response = RestClient.post "http://localhost:3001/calculateMeasureReports",  JSON.generate({ measure: measure_json, patients: [patient_json] }), :content_type => 'application/json'
+  raw_json = JSON.parse(response)
+  html = raw_json['results'][0]['text']['div']
+
+  pop_map = { 'IPP' => 'initial-population', 'DENOM' => 'denominator', 'NUMER' => 'numerator', 'DENEX' => 'denominator-exclusion', 'DENEXCEP' => 'denominator-exception' }
+%>
+
 <div class="col-md-6" style="overflow-y: scroll; height:100vh;">
   <h2>Measure Information</h2>
-  <% {
-        @continuous_measures => RecordsHelper::CV_POPULATION_KEYS,
-        @proportion_measures => RecordsHelper::PROPORTION_POPULATION_KEYS
-      }.each do |measures, pop_keys| %>
-    <% if measures.length.positive? %>
-      <table class="table table-condensed">
-        <thead>
-          <tr>
-            <td></td>
-            <% pop_keys.each do |population| %>
-              <th scope="col" class="text-center"><%= population_label(@bundle, population) %></th>
+  <table class="table table-condensed">
+    <thead>
+      <tr>
+        <td></td>
+        <% pop_keys.each do |population| %>
+          <th scope="col" class="text-center"><%= population_label(@bundle, population) %></th>
+        <% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% raw_json['results'].each_with_index do |result, index| %>
+        <tr>
+          <th class="abbreviated" scope="row">
+            <% measure_name = result['measure'].split('/').last %>
+            <%= measure_name %>
+          </th>
+          <% pop_keys.each do |population| %>
+            <td class="text-center">
+            <% values = result['group'][0]['population'].select { |p| p['code']['coding'][0]['code'] == pop_map[population] }
+            value = values.count.positive? ? values.first['count'] : nil %>
+            <% if value && value.positive? %>
+              <span class="sr-only">Pass</span>
+              <span class="fa-stack result-marker">
+                <%= icon('fas fa-stack-2x', 'circle', :"aria-hidden" => true) %>
+                <strong class="fa-stack-1x result-text"><span class="sr-only">value of </span><%= value %></strong>
+              </span>
+            <% else %>
+              <span class="sr-only">Fail</span>
+              <%= icon('far fa-2x empty-marker', 'circle', :"aria-hidden" => true) %>
             <% end %>
-          </tr>
-        </thead>
-        <tbody>
-          <% measures.each do |m| %>
-            <% m.population_sets_and_stratifications_for_measure.each do |population_set_hash| %>
-              <% result_values = get_result_values([@record], [m], m.key_for_population_set(population_set_hash), pop_keys, 'measure_id') %>
-              <% unless result_values.empty? %>
-                <tr>
-                  <th class="abbreviated" scope="row">
-                    <%= measure_display_name(m, population_set_hash) %>
-                  </th>
-                  <% result_values[m.id].each do |population, value| %>
-                    <td class="text-center">
-                      <span class="sr-only">Measure <%= m.description %> population <%= population %> result: </span>
-                      <!-- This is the relevant piece of the calculation_result_icon partial ported over to here. Rendering each circle in its own partial is far too slow and causes the application to take up to 8 seconds longer to load on some pages. -->
-                      <% if value && value.positive? %>
-                        <span class="sr-only">Pass</span>
-                        <span class="fa-stack result-marker">
-                          <%= icon('fas fa-stack-2x', 'circle', :"aria-hidden" => true) %>
-                          <% unless value == 1 && m.calculation_method != 'EPISODE_OF_CARE' %>
-                            <strong class="fa-stack-1x result-text"><span class="sr-only">value of </span><%= value %></strong>
-                          <% end %>
-                        </span>
-                      <% else %>
-                        <span class="sr-only">Fail</span>
-                        <%= icon('far fa-2x empty-marker', 'circle', :"aria-hidden" => true) %>
-                      <% end %>
-                    </td>
-                  <% end %>
-                </tr>
-                <% unless @record.calculation_results.first.clause_results.empty? %>
-                  <tr><td colspan="<%= pop_keys.size + 1 %>">
-                  <% @record.calculation_results.where(measure_id: m.id).each_with_index do |ir, index| %>
-                    <% if m.key_for_population_set(population_set_hash) == ir.population_set_key %>
-                      <button class="collapsible">View Logic Highlighting</button>
-                      <div class="collapse-content">
-                        <%= render 'patient_measure_highlighting', :measure => m, :index => index, :individual_result => ir %>
-                      </div>
-                    <% end %>
-                  <% end %>
-                </td></tr>
-                <% end %>
-              <% end %>
-            <% end %>
+          </td>
           <% end %>
-        </tbody>
-      </table>
-    <% end %>
-  <% end %>
-  <% if @result_measures %>
-      <table class="table table-condensed">
-        <tbody>
-          <% @result_measures.each do |m| %>
-            <% ir = @record.calculation_results.where(measure_id: m.id).first %>
-            <tr>
-              <td></td>
-              <% m.population_keys.each do |population| %>
-              <th scope="col" class="text-center"><%= population_label(@bundle, population) %></th>
-              <% end %>
-            </tr>
-            <% m.population_sets_and_stratifications_for_measure.each do |population_set_hash| %>
-              <tr>
-                <th class="abbreviated" scope="row">
-                  <%= measure_display_name(m, population_set_hash) %>
-                </th>
-                <% m.population_keys.each do |population| %>
-                  <td class="text-center">
-                    <span class="sr-only">Measure <%= m.description %> population <%= population %> result: </span>
-                    <!-- This is the relevant piece of the calculation_result_icon partial ported over to here. Rendering each circle in its own partial is far too slow and causes the application to take up to 8 seconds longer to load on some pages. -->
-                    <% value = ir[population] %>
-                    <% if value && value.positive? %>
-                      <span class="sr-only">Pass</span>
-                      <span class="fa-stack result-marker">
-                        <%= icon('fas fa-stack-2x', 'circle', :"aria-hidden" => true) %>
-                        <% unless value == 1 && m.calculation_method != 'EPISODE_OF_CARE' %>
-                          <strong class="fa-stack-1x result-text"><span class="sr-only">value of </span><%= value %></strong>
-                        <% end %>
-                      </span>
-                    <% else %>
-                      <span class="sr-only">Fail</span>
-                      <%= icon('far fa-2x empty-marker', 'circle', :"aria-hidden" => true) %>
-                    <% end %>
-                  </td>
-                  <% end %>
-              </tr>
-              <tr><td><button class="collapsible">View Core Clinical Data Element</button>
-              <div class="collapse-content">
-                <% statement_name = APP_CONSTANTS['result_measures'].select { |rm| rm['hqmf_set_id'] == m.hqmf_set_id }.first['statement_name'] %>
-                <% statement_results = ir.statement_results.select { |sr| sr['statement_name'] == statement_name }.first['raw'] %>
-                <% statement_results.each do |key, statement_result| %>
-                  <% next unless statement_result.first['FirstResult'] %>
-                  <p><%= "#{key} (#{statement_result.first['FirstResult']['value']} #{statement_result.first['FirstResult']['unit']})" %></p>
-                <% end %>
-              </div>
-              </td></tr>
-            <% end %>
-          <% end %>
-        </tbody>
-      </table>
-    <% end %>
+        </tr>
+        <tr><td colspan="<%= pop_keys.size + 1 %>">
+          <button class="collapsible">View Logic Highlighting</button>
+          <div class="collapse-content">
+            <%= render 'patient_measure_highlighting', :html => html, :index => index, :measure_name => measure_name %>
+          </div>
+        </td></tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>
 
   <div class="col-md-6" style="overflow-y: scroll; height:100vh;">
-
-    <div class="btn-group" align="right">
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"> Select Measure(s) <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu">
-      <li>
-      <% if @vendor %>
-        <%= link_to "All Measures", vendor_record_path(:vendor_id => @vendor.id, :id => @record.id, :bundle_id => @bundle.id), method: :get %>
-      <% else %>
-        <%= link_to "All Measures", bundle_record_path(:bundle_id => @bundle.id, :id => @record.id), method: :get %>
-      <% end %></li>
-      <% @measures.each do |measure| %>
-        <li>
-          <% if @vendor %>
-            <%= link_to "#{measure.cms_id}", vendor_record_path(:vendor_id => @vendor.id, :id => @record.id, :bundle_id => @bundle.id, :hqmf_id => measure.hqmf_id), method: :get %>
-          <% else %>
-            <%= link_to "#{measure.cms_id}", bundle_record_path(:bundle_id => @bundle.id, :id => @record.id, :hqmf_id => measure.hqmf_id), method: :get %>
-          <% end %>
-        </li>
-      <% end %>
-      </ul>
-    </div>
-
-
-    <% sf_patient = @record.clone %>
-    <% sf_patient.id =  @record.id %>
-    <% sf_measures = @measures %>
-    <% sf_title = "All Measures" %>
-    <% if @hqmf_id %>
-      <%# use selected measure and population_set_hash %>
-      <% sf_measures = Measure.where(:hqmf_id => @hqmf_id) %>
-      <% sf_title = sf_measures.first.cms_id %>
-    <% end %>
-    <h4>Patient Data for <%= sf_title %></h4>
-    <%= QdmPatient.new(Cypress::ScoopAndFilter.new(sf_measures).scoop_and_filter(sf_patient), false).render.html_safe %>
+    <%= Summary.new(patient_json).render.html_safe %>
   </div>
 </div>
