@@ -1,0 +1,33 @@
+<div>
+{{#patient_entry}}
+  {{#name}}
+    <p>{{#given}}{{{.}}}{{/given}} {{{family}}}</p>
+  {{/name}}
+{{/patient_entry}}
+</div>
+<div>
+{{#non_patient_entries}}
+  <h3>{{{resourceType}}} ({{{id}}})</h3>
+  {{#code}}
+    <p>{{> _code}}</p>
+  {{/code}}
+  {{#type}}
+    <p>{{> _code}}</p>
+  {{/type}}
+  {{#medicationCodeableConcept}}
+    <p>{{> _code}}</p>
+  {{/medicationCodeableConcept}}
+  {{#category}}
+  	<p>Category: {{> _code}}</p>
+  {{/category}}
+  {{#period}}
+  	{{> _interval}}
+  {{/period}}
+  {{#authoredOn}}
+  	<p>Authored: {{{.}}}</p>
+  {{/authoredOn}}
+  {{#diagnosis}}
+  	<p>Diagnosis: {{#condition}}{{{reference}}}{{/condition}} (rank: {{{rank}}})</p>
+  {{/diagnosis}}
+{{/non_patient_entries}}
+</div>
