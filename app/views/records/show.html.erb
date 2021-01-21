@@ -7,10 +7,8 @@
   measure_json = JSON.parse(measure_file)
   patient_file = File.read('./tmp/fhir/patient-bundle.json')
   patient_json = JSON.parse(patient_file)
-  response = RestClient.post "http://localhost:3001/calculateMeasureReports",  JSON.generate({ measure: measure_json, patients: [patient_json] }), :content_type => 'application/json'
+  response = RestClient.post "http://localhost:3000/calculateMeasureReports",  JSON.generate({ measure: measure_json, patients: [patient_json], options: { 'includeHighlighting' => true, 'calculateHTML' => true } }), :content_type => 'application/json'
   raw_json = JSON.parse(response)
-  html = raw_json['results'][0]['text']['div']
-
   pop_map = { 'IPP' => 'initial-population', 'DENOM' => 'denominator', 'NUMER' => 'numerator', 'DENEX' => 'denominator-exclusion', 'DENEXCEP' => 'denominator-exception' }
 %>
 
@@ -26,7 +24,8 @@
       </tr>
     </thead>
     <tbody>
-      <% raw_json['results'].each_with_index do |result, index| %>
+      <% raw_json.each_with_index do |result, index|
+        html = result['text']['div'] %>
         <tr>
           <th class="abbreviated" scope="row">
             <% measure_name = result['measure'].split('/').last %>

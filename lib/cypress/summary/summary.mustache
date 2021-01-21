@@ -29,5 +29,11 @@
   {{#diagnosis}}
   	<p>Diagnosis: {{#condition}}{{{reference}}}{{/condition}} (rank: {{{rank}}})</p>
   {{/diagnosis}}
+  {{#status}}
+    <p>Status: {{.}}
+  {{/status}}
+  {{#intent}}
+    <p>Intent: {{.}}
+  {{/intent}}
 {{/non_patient_entries}}
 </div>
