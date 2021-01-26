@@ -3,10 +3,9 @@ class SingleMeasureCalculationJob < ApplicationJob
   include Job::Status
 
   def perform(patient_ids, measure_id, correlation_id, options)
-    measure = Measure.find(measure_id)
-    patients = Patient.find(patient_ids)
-    qdm_patients = patients.map(&:qdmPatient)
-    calc_job = Cypress::CqmExecutionCalc.new(qdm_patients,
+    measure = MeasureBundle.find(measure_id)
+    patients = PatientBundle.find(patient_ids)
+    calc_job = Cypress::FqmExecutionCalc.new(patients,
                                              [measure],
                                              correlation_id,
                                              options)

@@ -29,7 +29,7 @@ module Vendors
     def destroy_multiple
       # Remove selected patients from database
       id_list = params[:patient_ids].split(',')
-      number_deleted = Patient.where(id: { '$in': id_list }).destroy_all
+      number_deleted = PatientBundle.where(id: { '$in': id_list }).destroy_all
       redirect_back(fallback_location: root_path)
       # If something can't be deleted, we want to flash that as well as anything that was deleted.
       if number_deleted != id_list.length
