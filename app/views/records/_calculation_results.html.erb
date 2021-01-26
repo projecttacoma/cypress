@@ -10,8 +10,8 @@
     <% else %>
       <td><%= link_to full_name(r), bundle_record_path(bundle, r) %></td>
     <% end %>
-    <td><%= display_time(r.qdmPatient.birthDatetime) %></td>
-    <td><%= full_gender_name(r.gender) %></td>
+    <td><%= r.birthDate %></td>
+    <td><%= r.gender %></td>
     <% if measure %>
       <% result_values[r.id]&.each do |_, value| %>
         <td class="text-center">

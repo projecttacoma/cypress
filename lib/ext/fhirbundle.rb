@@ -34,13 +34,33 @@ class PatientBundle
   belongs_to :bundle, class_name: 'Bundle'
 
   field :patient_bundle_hash, type: Hash, default: {}
+  field :correlation_id, type: BSON::ObjectId
 
   def patient
     FHIR::Bundle.new(patient_bundle_hash)
   end
 
-  def name
-    patient_resource.name
+  # TODO: rename given_names
+  def givenNames
+    patient_resource.name[0].given
+  end
+
+  # TODO: rename family_name
+  def familyName
+    patient_resource.name[0].family
+  end
+
+  def patient_fhir_id
+    patient_resource.id
+  end
+
+  # TODO: rename birthdate
+  def birthDate
+    patient_resource.birthDate
+  end
+
+  def gender
+    patient_resource.gender
   end
 
   private

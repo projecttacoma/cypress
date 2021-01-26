@@ -81,6 +81,9 @@ Metrics/PerceivedComplexity:
     - 'test/unit/html_test.rb'
 Naming/UncommunicativeMethodParamName:
   Enabled: false
+Naming/MethodName:
+  Exclude:
+    - 'lib/ext/fhirbundle.rb'
 Style/DateTime:
   Enabled: false
 Style/GuardClause:

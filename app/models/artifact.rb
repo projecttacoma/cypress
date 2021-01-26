@@ -5,7 +5,7 @@ class Artifact
 
   MIME_FILE_TYPES = { 'application/zip' => :zip, 'multipart/mixed' => :zip, 'application/x-zip-compressed' => :zip,
                       'application/x-compressed' => :zip, 'multipart/x-zip' => :zip, 'application/xml' => :xml,
-                      'text/xml' => :xml }.freeze
+                      'text/xml' => :xml, 'text/json' => :json, 'application/json' => :json }.freeze
 
   mount_uploader :file, DocumentUploader
 
@@ -75,7 +75,7 @@ class Artifact
   def each
     if archive?
       Zip::ZipFile.open(file.path) do |zipfile|
-        zipfile.glob('*.xml', File::FNM_CASEFOLD | ::File::FNM_PATHNAME | ::File::FNM_DOTMATCH).each do |entry|
+        zipfile.glob('*.json', File::FNM_CASEFOLD | ::File::FNM_PATHNAME | ::File::FNM_DOTMATCH).each do |entry|
           data = zipfile.read(entry.name)
           yield(entry.name, data)
         end
