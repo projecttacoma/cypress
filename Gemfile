@@ -16,7 +16,7 @@ gem 'mustache'
 gem 'os'
 
 gem 'cqm-models', '~> 3.0.1'
-gem 'cqm-parsers', '~> 3.1.0'
+gem 'cqm-parsers', git: 'https://github.com/projecttacoma/cqm-parsers.git', branch: 'nokogiri_update'
 gem 'cqm-reports', git: 'https://github.com/projecttacoma/cqm-reports', branch: 'master'
 gem 'cqm-validators', '~> 3.0.0'
 gem 'fhir_models', '~> 4.1.1'
