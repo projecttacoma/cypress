@@ -41,16 +41,11 @@ class PatientBundle
 
   field :patient_bundle_hash, type: Hash, default: {}
 
-  def patient
-    FHIR::Bundle.new(patient_bundle_hash)
+  def cqm_patient
+    CQMPatient.new(self)
   end
 
-  def name
-    patientResource.name
-  end
-private
-  def patientResource
-    # find actual patient resource
-    patient.entry.find{|e| e.resource.resourceType == "Patient"}.resource
+  def patient_resource_id
+    patient_bundle_hash.entry.find{|e| e.resource.resourceType == "Patient"}.resource.id
   end
 end
