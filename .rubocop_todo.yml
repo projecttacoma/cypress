@@ -42,6 +42,7 @@ Rails/InverseOf:
 Rails/Output:
   Exclude:
     - 'lib/cypress/cql_bundle_importer.rb'
+    - 'lib/cypress/fhir_bundle_importer.rb'
 
 # Offense count: 5
 Rails/OutputSafety:

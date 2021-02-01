@@ -1,5 +1,4 @@
 require 'cqm-parsers'
-
 module Cypress
   class FHIRBundleImporter
     SOURCE_ROOTS = { bundle: 'bundle.json',
@@ -10,7 +9,7 @@ module Cypress
     #
     # @param [File] zip The bundle zip file.
 
-    def self.import(zip, tracker, include_highlighting = false)
+    def self.import(zip, _tracker, _include_highlighting = false)
       bundle = nil
       Zip::ZipFile.open(zip.path) do |zip_file|
         bundle = unpack_bundle(zip_file)
@@ -87,8 +86,8 @@ module Cypress
         measure_string = "Measure #{fmb.name} version #{fmb.version} period"
         bundle_start = Time.at(bundle.measure_period_start).in_time_zone.to_date
         bundle_end = Time.at(bundle.effective_date).in_time_zone.to_date
-        measure_start = Date.strptime(fmb.effectivePeriod.start, "%Y-%m-%d")
-        measure_end = Date.strptime(fmb.effectivePeriod.end, "%Y-%m-%d")
+        measure_start = Date.strptime(fmb.effective_period.start, '%Y-%m-%d')
+        measure_end = Date.strptime(fmb.effective_period.end, '%Y-%m-%d')
         if measure_start != bundle_start
           checks = false
           raise "#{measure_string} start #{measure_start} does not match bundle period start #{bundle_start}"
@@ -100,6 +99,5 @@ module Cypress
       end
       checks
     end
-
   end
 end
