@@ -1,3 +1,5 @@
+require_relative 'fhirbundle.rb'
+
 class Bundle
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -18,6 +20,9 @@ class Bundle
   field :done_importing, type: Boolean, default: false
 
   validates_presence_of :version
+
+  has_many :fhir_measure_bundles, class_name: 'MeasureBundle'
+  has_many :fhir_patient_bundles, class_name: 'PatientBundle'
 
   has_many :value_sets, class_name: 'ValueSet', inverse_of: :bundle
   has_many :measures, foreign_key: :bundle_id, order: [:id.asc, :sub_id.asc]
@@ -51,6 +56,8 @@ class Bundle
     # destroy vendor patients created for bundle
     Patient.where(_type: 'CQM::VendorPatient', bundleId: id.to_s).destroy_all
     FileUtils.rm(mpl_path) if File.exist?(mpl_path)
+    MeasureBundle.where(bundle_id: id.to_s).destroy_all
+    PatientBundle.where(bundle_id: id.to_s).destroy_all
     delete
   end
 
