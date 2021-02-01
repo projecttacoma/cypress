@@ -1,6 +1,5 @@
 require_relative 'bundle.rb'
 
-
 class MeasureBundle
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -9,28 +8,23 @@ class MeasureBundle
 
   field :measure_bundle_hash, type: Hash, default: {}
 
+  delegate :name, to: :measure_resource
+  delegate :version, to: :measure_resource
+
   def measure
     FHIR::Bundle.new(measure_bundle_hash)
   end
 
-  def effectivePeriod
-    measureResource.effectivePeriod
+  def effective_period
+    measure_resource.effectivePeriod
   end
 
-  def name
-    measureResource.name
-  end
+  private
 
-  def version
-    measureResource.version
-  end
-
-private
-  def measureResource
+  def measure_resource
     # find actual patient resource (TODO: cache?)
-    measure.entry.find{|e| e.resource.resourceType == "Measure"}.resource
+    measure.entry.find { |e| e.resource.resourceType == 'Measure' }.resource
   end
-
 end
 
 class PatientBundle
@@ -46,11 +40,13 @@ class PatientBundle
   end
 
   def name
-    patientResource.name
+    patient_resource.name
   end
-private
-  def patientResource
+
+  private
+
+  def patient_resource
     # find actual patient resource
-    patient.entry.find{|e| e.resource.resourceType == "Patient"}.resource
+    patient.entry.find { |e| e.resource.resourceType == 'Patient' }.resource
   end
 end

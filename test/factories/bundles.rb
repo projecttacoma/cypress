@@ -11,7 +11,7 @@ FactoryBot.define do
       done_importing { true }
       name { 'Static Bundle' }
       title { 'Static Bundle' }
-      version { '2020.0.0' }
+      version { '2030.0.0' }
       extensions { %w[map_reduce_utils hqmf_utils] }
       measure_period_start { 1_483_228_800 } # Jan 1 2017
       effective_date { 1_514_764_799 } # Dec 31 2017
