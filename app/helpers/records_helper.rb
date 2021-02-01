@@ -11,17 +11,6 @@ module RecordsHelper
   CV_POPULATION_KEYS = %w[IPP MSRPOPL MSRPOPLEX OBSERV].freeze
   PROPORTION_POPULATION_KEYS = %w[IPP DENOM NUMER DENEX DENEXCEP].freeze
 
-  def full_gender_name(gender)
-    case gender
-    when 'M'
-      'Male'
-    when 'F'
-      'Female'
-    else
-      ''
-    end
-  end
-
   def full_name(patient)
     patient.givenNames.join(' ') + ' ' + patient.familyName if patient
   end
@@ -128,20 +117,21 @@ module RecordsHelper
     "#{cms_id} - #{population_set_display.tr('_', ' ')}"
   end
 
+  # TODO: HTML Zip
   # creates a folder with html patient files and zipped html patient files
-  def html_zip(patients, temp_path, name)
-    path = Rails.root.join(temp_path, Time.now.in_time_zone.getutc.to_s)
-    FileUtils.mkdir_p(path)
+  # def html_zip(patients, temp_path, name)
+  #   path = Rails.root.join(temp_path, Time.now.in_time_zone.getutc.to_s)
+  #   FileUtils.mkdir_p(path)
 
-    mes, sd, ed = Cypress::PatientZipper.measure_start_end(patients)
-    formatter = Cypress::HTMLExporter.new(mes, sd, ed)
-    patients.each do |r|
-      filename = "#{r.first_names}_#{r.familyName}.html".delete("'").tr(' ', '_')
-      File.open(File.join(path, filename), 'w') do |f|
-        f.write(formatter.export(r))
-      end
-    end
-    zfg = ZipFileGenerator.new(path, Rails.root.join(temp_path, name))
-    zfg.write
-  end
+  #   mes, sd, ed = Cypress::PatientZipper.measure_start_end(patients)
+  #   formatter = Cypress::HTMLExporter.new(mes, sd, ed)
+  #   patients.each do |r|
+  #     filename = "#{r.first_names}_#{r.familyName}.html".delete("'").tr(' ', '_')
+  #     File.open(File.join(path, filename), 'w') do |f|
+  #       f.write(formatter.export(r))
+  #     end
+  #   end
+  #   zfg = ZipFileGenerator.new(path, Rails.root.join(temp_path, name))
+  #   zfg.write
+  # end
 end

@@ -49,7 +49,7 @@ class ArtifactTest < ActiveSupport::TestCase
   end
 
   def test_should_be_able_to_loop_over_archive_files
-    expected = ['eh_test_results_bad.xml', 'eh_test_results.xml', 'qrda_cat3.xml', 'QRDA_CATIII_RI_AUG.xml']
+    expected = ['expected_results.json']
     reported = {}
     filename = Rails.root.join('test', 'fixtures', 'artifacts', 'qrda.zip')
     artifact = Artifact.new(file: File.new(filename))

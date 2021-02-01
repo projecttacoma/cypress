@@ -24,15 +24,11 @@ class Bundle
   has_many :fhir_measure_bundles, class_name: 'MeasureBundle'
   has_many :fhir_patient_bundles, class_name: 'PatientBundle'
 
-  has_many :value_sets, class_name: 'ValueSet', inverse_of: :bundle
-  has_many :measures, foreign_key: :bundle_id, order: [:id.asc, :sub_id.asc]
-  has_many :patients, class_name: 'CQM::BundlePatient', foreign_key: :bundleId
-
   scope :active, -> { where(active: true) }
   scope :available, -> { where(:deprecated.ne => true) }
 
   def results
-    CQM::IndividualResult.where(correlation_id: id.to_s)
+    PatientMeasureReport.where(correlation_id: id.to_s)
   end
 
   def title
@@ -42,27 +38,16 @@ class Bundle
   end
 
   def deprecate
-    # destroy results of bundle patients
-    results.destroy
-    # destroy results of vendor patients created for bundle
-    Patient.where(_type: 'CQM::VendorPatient', bundleId: id.to_s).each { |pt| pt.calculation_results.destroy }
+    PatientMeasureReport.where(patient_id: { '$in': PatientBundle.where(bundle_id: id.to_s).pluck(:id) }).destroy_all
     FileUtils.rm(mpl_path) if File.exist?(mpl_path)
     update(deprecated: true, active: false)
   end
 
   def destroy
-    # destroy bundle patients
-    patients.destroy
-    # destroy vendor patients created for bundle
-    Patient.where(_type: 'CQM::VendorPatient', bundleId: id.to_s).destroy_all
+    PatientMeasureReport.where(patient_id: { '$in': PatientBundle.where(bundle_id: id.to_s).pluck(:id) }).destroy_all
     FileUtils.rm(mpl_path) if File.exist?(mpl_path)
     MeasureBundle.where(bundle_id: id.to_s).destroy_all
     PatientBundle.where(bundle_id: id.to_s).destroy_all
-    delete
-  end
-
-  def delete
-    [measures, patients, value_sets].map(&:destroy)
     super
   end
 
@@ -106,9 +91,10 @@ class Bundle
     end
   end
 
+  # TODO: Bring this back
   def mpl_prepare
     if mpl_status == :unbuilt
-      MplDownloadCreateJob.perform_later(id.to_s)
+      # MplDownloadCreateJob.perform_later(id.to_s)
       :building
     else
       mpl_status

@@ -1,6 +1,6 @@
 class RecordsController < ApplicationController
   include RecordsHelper
-  before_action :set_record_source, only: %i[index show by_measure]
+  before_action :set_record_source, only: %i[index show]
 
   respond_to :js, only: [:index]
 
@@ -38,17 +38,18 @@ class RecordsController < ApplicationController
     add_breadcrumb 'Patient: ' + @record.givenNames.join(' ') + ' ' + @record.familyName, :record_path
   end
 
-  def by_measure
-    @patients = @vendor.patients.includes(:calculation_results).where(bundleId: @bundle.id.to_s) if @vendor
-    @patients ||= @source.patients.includes(:calculation_results)
+  # TODO: This will need to be update for FHIR Patient
+  # def by_measure
+  #   @patients = @vendor.patients.includes(:calculation_results).where(bundleId: @bundle.id.to_s) if @vendor
+  #   @patients ||= @source.patients.includes(:calculation_results)
 
-    if params[:measure_id]
-      measures = @vendor ? @bundle.measures : @source.measures
-      @measure = measures.find_by(hqmf_id: params[:measure_id])
-      @population_set_hash = params[:population_set_hash] || @measure.population_sets_and_stratifications_for_measure.first
-      expires_in 1.week, public: true
-    end
-  end
+  #   if params[:measure_id]
+  #     measures = @vendor ? @bundle.measures : @source.measures
+  #     @measure = measures.find_by(hqmf_id: params[:measure_id])
+  #     @population_set_hash = params[:population_set_hash] || @measure.population_sets_and_stratifications_for_measure.first
+  #     expires_in 1.week, public: true
+  #   end
+  # end
 
   def download_mpl
     if BSON::ObjectId.legal?(params[:format])
@@ -105,14 +106,14 @@ class RecordsController < ApplicationController
   def measures_for_source
     Rails.cache.fetch("#{@source.cache_key}/measure_dropdown") do
       if @vendor
-        @bundle.measures.order_by(cms_int: 1).map do |m|
-          { label: "#{m.cms_id}: #{m.description}",
-            value: by_measure_vendor_records_path(@vendor, measure_id: m.hqmf_id, bundle_id: @bundle.id) }
+        @bundle.fhir_measure_bundles.order_by(name: 1).map do |m|
+          { label: m.name,
+            value: by_measure_vendor_records_path(@vendor, measure_id: m.id, bundle_id: @bundle.id) }
         end
       else
-        @source.measures.order_by(cms_int: 1).map do |m|
-          { label: "#{m.cms_id}: #{m.description}",
-            value: by_measure_bundle_records_path(@bundle, measure_id: m.hqmf_id) }
+        @source.fhir_measure_bundles.order_by(name: 1).map do |m|
+          { label: m.name,
+            value: by_measure_bundle_records_path(@bundle, measure_id: m.id) }
         end
       end.to_json.html_safe
     end
