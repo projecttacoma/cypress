@@ -1,4 +1,7 @@
 require 'cqm-parsers'
+require 'zip/zip'
+require 'zip/zipfilesystem'
+
 module Cypress
   class FHIRBundleImporter
     SOURCE_ROOTS = { bundle: 'bundle.json',

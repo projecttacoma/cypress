@@ -9,11 +9,12 @@ class PatientAnalysisJob < ApplicationJob
     tracker.save
   end
 
-  def perform(bundle_id, vendor_id)
-    bundle = Bundle.find(bundle_id)
-    vendor = Vendor.find(vendor_id)
+  def perform(_bundle_id, _vendor_id)
+    # bundle = Bundle.find(bundle_id)
+    # vendor = Vendor.find(vendor_id)
     tracker.log('Analyzing')
-    vendor.vendor_patient_analysis[bundle_id] = generate_analysis(vendor.patients, nil, bundle)
-    vendor.save
+    # TODO: Bring this back
+    # vendor.vendor_patient_analysis[bundle_id] = generate_analysis(vendor.patients, nil, bundle)
+    # vendor.save
   end
 end

@@ -45,7 +45,7 @@ module Admin
         perform_enqueued_jobs do
           post :create, params: { file: upload }
         end
-        assert_performed_jobs 2
+        assert_performed_jobs 1
         assert_equal orig_bundle_count + 1, Bundle.count, 'Should have added 1 new Bundle'
         assert orig_measure_count < MeasureBundle.count, 'Should have added new measures in the bundle'
         assert orig_patient_count < PatientBundle.count, 'Should have added new patients in the bundle'
@@ -105,24 +105,22 @@ module Admin
     end
 
     test 'should be able to remove bundle' do
-      FactoryBot.create(:vendor_test_patient,
-                        bundleId: @static_bundle._id, correlation_id: @vendor.id)
+      FactoryBot.create(:vendor_patient_bundle,
+                        bundle: @static_bundle, correlation_id: @vendor.id)
       for_each_logged_in_user([ADMIN]) do
         orig_bundle_count = Bundle.count
-        orig_measure_count = Measure.count
-        orig_patient_count = Patient.count
-        orig_vendor_patient_count = CQM::VendorPatient.count
-        orig_results_count = CQM::IndividualResult.count
+        orig_measure_count = MeasureBundle.count
+        orig_patient_count = PatientBundle.count
+        orig_results_count = PatientMeasureReport.count
         id = @static_bundle.id
         perform_enqueued_jobs do
           delete :destroy, params: { id: id }
         end
         assert_equal 0, Bundle.where(_id: id).count, 'Should have deleted bundle'
         assert_equal orig_bundle_count - 1, Bundle.count, 'Should have deleted Bundle'
-        assert orig_measure_count > Measure.count, 'Should have removed measures in the bundle'
-        assert orig_patient_count > Patient.count, 'Should have removed patients in the bundle'
-        assert orig_vendor_patient_count > CQM::VendorPatient.count, 'Should have vendor patients for the bundle'
-        assert orig_results_count > CQM::IndividualResult.count, 'Should have removed individual results in the bundle'
+        assert orig_measure_count > MeasureBundle.count, 'Should have removed measures in the bundle'
+        assert orig_patient_count > PatientBundle.count, 'Should have removed patients in the bundle'
+        assert orig_results_count > PatientMeasureReport.count, 'Should have removed individual results in the bundle'
       end
     end
 
@@ -135,25 +133,23 @@ module Admin
     end
 
     test 'should be able to deprecate bundle' do
-      patient = FactoryBot.create(:vendor_test_patient,
-                                  bundleId: @static_bundle._id, correlation_id: @vendor.id)
+      patient = FactoryBot.create(:vendor_patient_bundle,
+                                  bundle: @static_bundle, correlation_id: @vendor.id)
       for_each_logged_in_user([ADMIN]) do
         orig_bundle_count = Bundle.available.count
-        orig_measure_count = Measure.count
-        orig_patient_count = Patient.count
-        orig_vendor_patient_calculation = patient.calculation_results.size
-        orig_results_count = CQM::IndividualResult.count
+        orig_measure_count = MeasureBundle.count
+        orig_patient_count = PatientBundle.count
+        orig_results_count = PatientMeasureReport.count
         id = @static_bundle.id
         perform_enqueued_jobs do
           post :deprecate, params: { id: id }
         end
         patient.reload
-        assert_not_equal orig_vendor_patient_calculation, patient.calculation_results.size
         assert_equal 0, Bundle.available.where(_id: id).count, 'Should have deprecated bundle'
         assert_equal orig_bundle_count - 1, Bundle.available.count, 'Should have deprecated Bundle'
-        assert orig_measure_count == Measure.count, 'Should not have removed measures in the bundle'
-        assert orig_patient_count == Patient.count, 'Should not have removed patients in the bundle'
-        assert orig_results_count > CQM::IndividualResult.count, 'Should have removed individual results in the bundle'
+        assert orig_measure_count == MeasureBundle.count, 'Should not have removed measures in the bundle'
+        assert orig_patient_count == PatientBundle.count, 'Should not have removed patients in the bundle'
+        assert orig_results_count > PatientMeasureReport.count, 'Should have removed individual results in the bundle'
       end
     end
 

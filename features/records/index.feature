@@ -22,35 +22,35 @@ Scenario: View Master Patient List Page, Single Bundle
   Then the user should see a list of patients
   And the user should see a way to filter patients
 
-  Scenario: Download MPL from Master Patient List Page
-    When the user visits the records page
-    And the Master Patient List zip is not already built
-    Then the user should see Preparing Download for all MPL downloads
-    When the Master Patient List zip is ready for download
-    Then the user should see a Download button
-    When the user clicks a Download button
-    Then a zip file should be downloaded within 1 seconds
+  #Scenario: Download MPL from Master Patient List Page
+    #When the user visits the records page
+    #And the Master Patient List zip is not already built
+    #Then the user should see Preparing Download for all MPL downloads
+    #When the Master Patient List zip is ready for download
+    #Then the user should see a Download button
+    #When the user clicks a Download button
+    #Then a zip file should be downloaded within 1 seconds
 
-  Scenario: Download MPL from Master Patient List Page, Single Bundle
-    When the user visits the records page
-    And there is only 1 bundle installed
-    And the Master Patient List zip is not already built
-    Then the user should see Preparing Download for all MPL downloads
-    When the Master Patient List zip is ready for download
-    Then the user should see a Download button
-    When the user clicks a Download button
-    Then a zip file should be downloaded within 1 seconds
+  #Scenario: Download MPL from Master Patient List Page, Single Bundle
+    #When the user visits the records page
+    #And there is only 1 bundle installed
+    #And the Master Patient List zip is not already built
+    #Then the user should see Preparing Download for all MPL downloads
+    #When the Master Patient List zip is ready for download
+    #Then the user should see a Download button
+    #When the user clicks a Download button
+    #Then a zip file should be downloaded within 1 seconds
 
 Scenario: Successful switch bundles
   When the user visits the records page
   And the user selects a bundle
   Then the user should see records for that bundle
 
-Scenario: Successful filter records
-  When the user visits the records page
-  And the user searches for a measure
-  And the user selects a measure from the dropdown
-  Then the user should see results for that measure
+#Scenario: Successful filter records
+  #When the user visits the records page
+  #And the user searches for a measure
+  #And the user selects a measure from the dropdown
+  #Then the user should see results for that measure
 
 Scenario: View Vendor Patient List Page
   When the user visits the vendor records page
@@ -59,26 +59,26 @@ Scenario: View Vendor Patient List Page
   And the user should see a way to filter patients
   And the user should see a way to select all patients
 
-Scenario: View Vendor Patient List Analyize Page
-  When the user visits the vendor records page
-  Then the user should see a list of vendor patients
-  And the user should see a way to analyize patients
-  And the user views patient analytics
-  And the user should see patient analytics
-  Then the page should be accessible according to: section508
-  Then the page should be accessible according to: wcag2aa
+#Scenario: View Vendor Patient List Analyize Page
+  #When the user visits the vendor records page
+  #Then the user should see a list of vendor patients
+  #And the user should see a way to analyize patients
+  #And the user views patient analytics
+  #And the user should see patient analytics
+  #Then the page should be accessible according to: section508
+  #Then the page should be accessible according to: wcag2aa
 
 Scenario: Successful switch bundles for vendor patients
   When the user visits the vendor records page
   And the user selects a bundle
   Then the user should see records for that bundle
 
-Scenario: Successful filter records for vendor patient
-  When the user visits the vendor records page
-  Then the user should see a list of vendor patients
-  And the user searches for a measure
-  And the user selects a measure from the dropdown
-  Then the user should see results for that measure
+#Scenario: Successful filter records for vendor patient
+  #When the user visits the vendor records page
+  #Then the user should see a list of vendor patients
+  #And the user searches for a measure
+  #And the user selects a measure from the dropdown
+  #Then the user should see results for that measure
 
 #TODO: Bring back
 #Scenario: View Vendor Patient Page

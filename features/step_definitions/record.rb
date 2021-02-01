@@ -25,7 +25,7 @@ When(/^the user visits the records page$/) do
   visit '/records/'
   @bundle = Bundle.default
   @other_bundle = Bundle.where('$or' => [{ 'active' => false }, { :active.exists => false }]).sample
-  @measure = @bundle.measures.find_by(hqmf_id: 'BE65090C-EB1F-11E7-8C3F-9A214CF093AE') unless @bundle.measures.count.eql? 0
+  @measure = @bundle.fhir_measure_bundles.first unless @bundle.fhir_measure_bundles.count.eql? 0
 end
 
 And(/^there is only 1 bundle installed$/) do
@@ -51,7 +51,7 @@ end
 
 Then(/^the user should see a list of patients$/) do
   page.assert_text 'All Patients'
-  assert page.has_selector?('table tbody tr', count: @bundle.patients.length), 'different count'
+  assert page.has_selector?('table tbody tr', count: @bundle.fhir_patient_bundles.length), 'different count'
 end
 
 And(/^the user should see a way to filter patients$/) do
@@ -109,7 +109,7 @@ And(/^the user selects a bundle$/) do
 end
 
 Then(/^the user should see records for that bundle$/) do
-  assert page.has_selector?('table tbody tr', count: @other_bundle.patients.length), 'different number'
+  assert page.has_selector?('table tbody tr', count: @other_bundle.fhir_patient_bundles.length), 'different number'
 end
 
 When(/^the Master Patient List zip is ready for download$/) do
@@ -134,7 +134,7 @@ Then(/^the user sees details$/) do
   page.assert_text @patient.gender
   @measures = @bundle.measures.where(:_id.in => @patient.calculation_results.map(&:measure_id))
   sf_patient = @patient.clone
-  Cypress::ScoopAndFilter.new(@measures).scoop_and_filter(sf_patient)
+  # Cypress::ScoopAndFilter.new(@measures).scoop_and_filter(sf_patient)
   sf_patient.qdmPatient.dataElements.each do |data_criteria|
     page.assert_text data_criteria['description']
   end
@@ -162,17 +162,17 @@ Then(/^the user should not see deprecated bundles$/) do
 end
 
 When(/^the user visits the vendor records page$/) do
-  @bundle = FactoryBot.create(:executable_bundle)
+  @bundle = Bundle.find_by(name: 'Static Bundle')
   @other_bundle = Bundle.where('$or' => [{ 'active' => false }, { :active.exists => false }]).sample
   @vendor = Vendor.create!(name: 'test_vendor_name')
-  @measure = @bundle.measures.find_by(hqmf_id: 'BE65090C-EB1F-11E7-8C3F-9A214CF093AE') unless @bundle.measures.count.eql? 0
-  @patient = FactoryBot.create(:vendor_test_patient, bundleId: @bundle._id, correlation_id: @vendor.id)
+  @measure = @bundle.fhir_measure_bundles.first unless @bundle.fhir_measure_bundles.count.eql? 0
+  FactoryBot.create(:vendor_patient_bundle, bundle: @bundle, correlation_id: @vendor.id)
   visit "/records?vendor_id=#{@vendor.id}&bundle_id=#{@bundle.id}"
 end
 
 Then(/^the user should see a list of vendor patients$/) do
   page.assert_text 'All Patients'
-  patients = @vendor.patients.where(bundleId: @bundle.id.to_s)
+  patients = @vendor.fhir_patient_bundles.where(bundle_id: @bundle.id)
   assert page.has_selector?('table tbody tr', count: patients.length), 'different count'
 end
 
@@ -188,7 +188,7 @@ Then(/^the user should see vendor patient details$/) do
   assert page.first(:xpath, './/span[@id="ED Visit_24" and @class="clause-true"]'), 'clause should highlighted as true'
   @measures = @bundle.measures.where(:_id.in => @patient.calculation_results.map(&:measure_id))
   sf_patient = @patient.clone
-  Cypress::ScoopAndFilter.new(@measures).scoop_and_filter(sf_patient)
+  # Cypress::ScoopAndFilter.new(@measures).scoop_and_filter(sf_patient)
   sf_patient.qdmPatient.dataElements.each do |data_criteria|
     page.assert_text data_criteria['description']
   end

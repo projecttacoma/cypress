@@ -10,20 +10,21 @@ class MeasuresControllerTest < ActionController::TestCase
 
   # json
 
-  test 'should get index with json' do
-    bundle = Bundle.default
-    get :index, params: { format: :json, bundle_id: bundle.id }
-    assert_response 200, 'response should be OK on index'
-    assert_equal bundle.measures.count, JSON.parse(response.body).count, 'response body should have all measures for bundle'
-  end
+  # TODO: Bring back API
+  # test 'should get index with json' do
+  #   bundle = Bundle.default
+  #   get :index, params: { format: :json, bundle_id: bundle.id }
+  #   assert_response 200, 'response should be OK on index'
+  #   assert_equal bundle.fhir_measure_bundles.count, JSON.parse(response.body).count, 'response body should have all measures for bundle'
+  # end
 
-  # xml
+  # # xml
 
-  test 'should get index with xml' do
-    bundle = Bundle.default
-    get :index, params: { format: :json, bundle_id: bundle.id }
-    assert_response 200, 'response should be OK on index'
-  end
+  # test 'should get index with xml' do
+  #   bundle = Bundle.default
+  #   get :index, params: { format: :json, bundle_id: bundle.id }
+  #   assert_response 200, 'response should be OK on index'
+  # end
 
   # bad requests
 
