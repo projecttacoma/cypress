@@ -27,7 +27,7 @@ class RecordsController < ApplicationController
 
   def show
     @record = @source.fhir_patient_bundles.find(params[:id])
-    @results = PatientMeasureReport.where(patient_id: @record.id)
+    @results = PatientMeasureReport.where(patient_id: @record.id).keep_if(&:in_ipp?)
     @measures = MeasureBundle.find(@results.map(&:measure_id))
     @relevant_entries = params[:measure_id] ? scoop_and_filter(params[:measure_id]) : @record.patient.entry
     @continuous_measures = @measures.select { |measure| measure.measure_scoring == 'continuous-variable' }
@@ -108,15 +108,15 @@ class RecordsController < ApplicationController
   def measures_for_source
     Rails.cache.fetch("#{@source.cache_key}/measure_dropdown") do
       if @vendor
-        @bundle.fhir_measure_bundles.order_by(name: 1).map do |m|
+        @bundle.fhir_measure_bundles.map do |m|
           { label: m.name,
             value: by_measure_vendor_records_path(@vendor, measure_id: m.id, bundle_id: @bundle.id) }
-        end
+        end.sort_by(&:label)
       else
-        @source.fhir_measure_bundles.order_by(name: 1).map do |m|
+        @source.fhir_measure_bundles.map do |m|
           { label: m.name,
             value: by_measure_bundle_records_path(@bundle, measure_id: m.id) }
-        end
+        end.sort_by(&:label)
       end.to_json.html_safe
     end
   end
