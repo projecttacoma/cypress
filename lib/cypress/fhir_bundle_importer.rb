@@ -12,7 +12,7 @@ module Cypress
     #
     # @param [File] zip The bundle zip file.
 
-    def self.import(zip, _tracker, _include_highlighting = false)
+    def self.import(zip, tracker, _include_highlighting = false)
       bundle = nil
       Zip::ZipFile.open(zip.path) do |zip_file|
         bundle = unpack_bundle(zip_file)
@@ -24,6 +24,7 @@ module Cypress
         puts 'bundle metadata unpacked...'
         unpack_and_store_measures(zip_file, bundle)
         unpack_and_store_patients(zip_file, bundle)
+        calculate_results(bundle, tracker)
         raise bundle.errors.full_messages.join(',') unless check_measure_years(bundle)
       end
 
@@ -74,6 +75,17 @@ module Cypress
       end
       bundle.save!
       puts "\rLoading: Patients Complete          "
+    end
+
+    def self.calculate_results(bundle, tracker)
+      patient_ids = bundle.fhir_patient_bundles.map { |p| p.id.to_s }
+      # TODO: remove hard coded dates
+      options = { 'includeHighlighting' => true, 'calculateHTML' => true,
+                  'measurementPeriodStart' => '2019-01-01', 'measurementPeriodEnd' => '2019-12-31' }
+      bundle.fhir_measure_bundles.each_with_index do |measure, index|
+        tracker.log("Calculating (#{index} of #{bundle.fhir_measure_bundles.size} measures complete) ")
+        SingleMeasureCalculationJob.perform_now(patient_ids, measure.id.to_s, bundle.id.to_s, options)
+      end
     end
 
     def self.report_progress(label, percent)
