@@ -82,3 +82,6 @@ class PatientBundle
     patient.entry.find { |e| e.resource.resourceType == 'Patient' }.resource
   end
 end
+
+class BundlePatientBundle < PatientBundle; end
+class VendorPatientBundle < PatientBundle; end

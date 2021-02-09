@@ -42,8 +42,8 @@ class RecordsController < ApplicationController
   end
 
   def by_measure
-    source_patients = @vendor.fhir_patient_bundles
-    source_patients ||= @source.fhir_patient_bundles
+    source_patients = @vendor&.fhir_patient_bundles
+    source_patients ||= @source&.fhir_patient_bundles
 
     patient_ids = source_patients.map(&:id)
     if params[:measure_id]

@@ -48,7 +48,7 @@ class VendorPatientUploadJob < ApplicationJob
 
   # Take xml file name, data, error collection hash, return CQM::Patient
   def add_patient(data, vendor_id, bundle)
-    [true, PatientBundle.create(patient_bundle_hash: JSON.parse(data), correlation_id: vendor_id, bundle: bundle.id)]
+    [true, VendorPatientBundle.create(patient_bundle_hash: JSON.parse(data), correlation_id: vendor_id, bundle: bundle.id)]
 
     # time_shifted_patient(doc, vendor_id, bundle)
   end

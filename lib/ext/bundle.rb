@@ -22,7 +22,7 @@ class Bundle
   validates_presence_of :version
 
   has_many :fhir_measure_bundles, class_name: 'MeasureBundle'
-  has_many :fhir_patient_bundles, class_name: 'PatientBundle'
+  has_many :fhir_patient_bundles, class_name: 'BundlePatientBundle'
 
   scope :active, -> { where(active: true) }
   scope :available, -> { where(:deprecated.ne => true) }
