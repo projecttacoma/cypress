@@ -19,6 +19,10 @@ class MeasureBundle
     measure_resource.effectivePeriod
   end
 
+  def measure_scoring
+    measure_resource.scoring.coding[0].code
+  end
+
   private
 
   def measure_resource

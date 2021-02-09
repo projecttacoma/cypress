@@ -96,6 +96,7 @@ And(/^the user selects a measure from the dropdown$/) do
   page.find('.ui-autocomplete .list-group-item').click
 end
 
+# TODO: measure_display_name will be different
 Then(/^the user should see results for that measure$/) do
   page.assert_text measure_display_name(@measure, @measure.population_sets_and_stratifications_for_measure.first) + ' Patients'
   records = records_by_measure(@vendor ? @vendor.patients.where(bundleId: @bundle.id.to_s) : @bundle.patients, @measure, @vendor)
