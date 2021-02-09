@@ -10,4 +10,8 @@ class PatientMeasureReport
   def measure_report
     FHIR::MeasureReport.new(measure_report_hash)
   end
+
+  def evaluated_resources
+    measure_report.evaluatedResource.map(&:reference)
+  end
 end

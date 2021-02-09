@@ -54,6 +54,27 @@
   
   <!-- TODO: Add in Clinical Data -->
   <div class="col-md-6" style="overflow-y: scroll; height:100vh;">
+    <div class="btn-group" align="right">
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"> Select Measure(s) <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+      <li>
+      <% if @vendor %>
+        <%= link_to "All Measures", vendor_record_path(:vendor_id => @vendor.id, :id => @record.id, :bundle_id => @bundle.id), method: :get %>
+       <% else %>
+        <%= link_to "All Measures", bundle_record_path(:bundle_id => @bundle.id, :id => @record.id), method: :get %>
+      <% end %></li>
+      <% @measures.each do |measure| %>
+        <li>
+          <% if @vendor %>
+            <%= link_to "#{measure.name}", vendor_record_path(:vendor_id => @vendor.id, :id => @record.id, :bundle_id => @bundle.id, :measure_id => measure.id), method: :get %>
+           <% else %>
+            <%= link_to "#{measure.name}", bundle_record_path(:bundle_id => @bundle.id, :id => @record.id, :measure_id => measure.id), method: :get %>
+          <% end %>
+        </li>
+      <% end %>
+      </ul>
+    </div>
     
   </div>
 </div>

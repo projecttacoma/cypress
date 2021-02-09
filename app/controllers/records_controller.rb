@@ -28,7 +28,15 @@ class RecordsController < ApplicationController
   def show
     @record = @source.fhir_patient_bundles.find(params[:id])
     # TODO: Filter results by patient and measures.
-    @results = PatientMeasureReport.where(patient_id: @record.id).map(&:measure_report)
+    patient_measure_reports = PatientMeasureReport.where(patient_id: @record.id)
+    @results = patient_measure_reports.map(&:measure_report)
+    @measures = MeasureBundle.find(patient_measure_reports.map(&:measure_id))
+    @relevant_entries = if params[:measure_id]
+                          patient_measure_report = patient_measure_reports.select { |pmr| pmr.measure_id.to_s == params[:measure_id] }.first
+                          @record.relevant_entries_for_measure_report(patient_measure_report)
+                        else
+                          @record.patient.entry
+                        end
     # @measures = (@vendor ? @bundle : @source).measures.where(:_id.in => @results.map(&:measure_id))
     # @hqmf_id = params[:hqmf_id]
     # @continuous_measures = @measures.where(measure_scoring: 'CONTINUOUS_VARIABLE').sort_by { |m| [m.cms_int] }
