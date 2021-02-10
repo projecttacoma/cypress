@@ -2,15 +2,23 @@ class Summary < Mustache
 
   self.template_path = __dir__
 
-  def initialize(patient_bundle)
-    @patient_bundle = patient_bundle
+  def initialize(relevant_entries)
+    @relevant_entries = relevant_entries
   end
 
   def patient_entry
-    @patient_bundle['entry'].select { |pe| pe['resource']['resourceType'] == 'Patient' }.map(&:resource)
+    @relevant_entries.select { |pe| pe.resource.resourceType == 'Patient' }.map(&:resource)
   end
 
   def non_patient_entries
-    @patient_bundle['entry'].select { |pe| !['Patient', 'MeasureReport'].include? pe['resource']['resourceType'] }.map(&:resource)
-  end  
+    @relevant_entries.select { |pe| !['Patient', 'MeasureReport'].include? pe.resource.resourceType }.map(&:resource)
+  end
+
+  def check_race(url)
+    render(url) == "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+  end
+
+  def check_ethnicity(url)
+    render(url) == "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
+  end
 end

@@ -75,6 +75,9 @@
       <% end %>
       </ul>
     </div>
-    
+ 	<%# TODO: change title to use measure if exists  %>
+    <% sf_title = "All Measures" %>
+    <h4>Patient Data for <%= sf_title %></h4>
+    <%= Summary.new(@relevant_entries).render.html_safe %>
   </div>
 </div>

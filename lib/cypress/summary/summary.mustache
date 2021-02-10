@@ -1,4 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns:n1="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    {{#patient}}
+    <title>Cypress Certification Patient Test Record: {{given_name}} {{familyName}}</title>
+    {{/patient}}
+    {{#include_style?}}
+      {{> _header_css}}
+    {{/include_style?}}
+  </head>
+  <body>
+    {{#patient_entry}}
+      <h1 class="h1center">Cypress Certification Patient Test Record:
+        {{#name}}
+          {{#given}}{{{.}}}{{/given}} {{{family}}}
+        {{/name}}
+      </h1>
+      <div class="div-table">
+        <div class="div-table-body">
+          <div class="div-head-row patient_narr_tr panel panel-default patient-details">
+            <div class="div-table-head patient_narr_th panel-heading"><span class="td_label">Patient</span></div>
+            <div class="div-table-head">
+              {{#name}}
+                {{#given}}{{{.}}}{{/given}} {{{family}}}
+              {{/name}}
+            </div>
+            <div class="div-table-head patient_narr_th panel-heading"><span class="td_label">Sex</span></div>
+            <div class="div-table-head">{{{gender}}}</div>
+          </div>
+          <div class="div-head-row patient_narr_tr panel panel-default patient-details">
+            <div class="div-table-head patient_narr_th panel-heading"><span class="td_label">Date of birth</span></div>
+            <div class="div-table-head">{{{birthDate}}}</div>
+            <div class="div-table-head patient_narr_th panel-heading"><span class="td_label">Date of expiration</span></div>
+
+            <div class="div-table-head">{{#deceased}}{{{deceasedDateTime}}}{{/deceased}}</div>
+            <!-- TODO: test deceased -->
+          </div>
+          <!-- Shows all demographic extensions with valueCodings (Race and Ethnicity) -->
+          <div class="div-head-row patient_narr_tr panel panel-default patient-details">
+              {{#extension}}
+                <!-- {{#check_race}}url{{/check_race}} -->
+                {{#extension}}
+                  <!-- {{#check_coding}}valueCoding{{/check_coding}} -->
+                  {{#valueCoding}}
+
+                  <!-- TODO: fix label -->
+                    <div class="div-table-head patient_narr_th panel-heading"><span class="td_label">Race</span></div>
+                    <div class="div-table-head">{{{display}}}</div>
+                  {{/valueCoding}}
+                {{/extension}}
+              {{/extension}}
+          </div>
+          <div class="div-head-row patient_narr_tr panel panel-default patient-details">
+            <div class="div-table-head patient_narr_th panel-heading"><span class="td_label">Address</span></div>
+            <div class="div-table-head">
+              {{#address}}
+                <p>
+                {{#line}}{{{.}}}<br/>{{/line}}
+                {{{city}}}, {{{state}}}, {{{country}}} {{{postalCode}}}
+                </p>
+              {{/address}}
+            </div>
+            <div class="div-table-head patient_narr_th panel-heading"><span class="td_label">Telecom</span></div>
+            <div class="div-table-head">{{#telecom}}{{{value}}}{{/telecom}}</div>
+          </div>
+        </div>
+      </div>
+
+    {{/patient_entry}}
+  </body>
+</html>
+
 <div>
+  Break
 {{#patient_entry}}
   {{#name}}
     <p>{{#given}}{{{.}}}{{/given}} {{{family}}}</p>
