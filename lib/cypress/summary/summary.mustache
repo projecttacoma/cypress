@@ -39,16 +39,22 @@
           <!-- Shows all demographic extensions with valueCodings (Race and Ethnicity) -->
           <div class="div-head-row patient_narr_tr panel panel-default patient-details">
               {{#extension}}
-                <!-- {{#check_race}}url{{/check_race}} -->
-                {{#extension}}
-                  <!-- {{#check_coding}}valueCoding{{/check_coding}} -->
-                  {{#valueCoding}}
-
-                  <!-- TODO: fix label -->
-                    <div class="div-table-head patient_narr_th panel-heading"><span class="td_label">Race</span></div>
-                    <div class="div-table-head">{{{display}}}</div>
-                  {{/valueCoding}}
-                {{/extension}}
+                {{#race_extension?}}
+                  {{#extension}}
+                    {{#valueCoding}}
+                      <div class="div-table-head patient_narr_th panel-heading"><span class="td_label">Race</span></div>
+                      <div class="div-table-head">{{{display}}}</div>
+                    {{/valueCoding}}
+                  {{/extension}}
+                {{/race_extension?}}
+                {{#ethnicity_extension?}}
+                  {{#extension}}
+                    {{#valueCoding}}
+                      <div class="div-table-head patient_narr_th panel-heading"><span class="td_label">Ethnicity</span></div>
+                      <div class="div-table-head">{{{display}}}</div>
+                    {{/valueCoding}}
+                  {{/extension}}
+                {{/ethnicity_extension?}}
               {{/extension}}
           </div>
           <div class="div-head-row patient_narr_tr panel panel-default patient-details">
