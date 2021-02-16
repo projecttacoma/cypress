@@ -39,6 +39,7 @@ class PatientBundle
 
   field :patient_bundle_hash, type: Hash, default: {}
   field :correlation_id, type: BSON::ObjectId
+  field :validation_results, type: Hash, default: {}
 
   def patient
     FHIR::Bundle.new(patient_bundle_hash)
@@ -69,6 +70,24 @@ class PatientBundle
 
   def retrieve_entries(resource_urls)
     patient.entry.select { |e| resource_urls.include?("#{e.resource.resourceType}/#{e.resource.id}") }
+  end
+
+  def validate(validator)
+    patient.entry.each do |entry|
+      resource = entry.resource
+      profile_url = resource&.meta&.profile&.first
+      validator_klass = profile_url ? Inferno::ValidationUtil.definitions[profile_url] : nil
+      validation_results[hexkey_for_entry(entry)] = validator.validate(resource, validator_klass, profile_url)
+    end
+    save
+  end
+
+  def hexkey_for_entry(entry)
+    Digest::SHA2.hexdigest("#{entry.resource.resourceType} #{entry.resource.resourceType}")
+  end
+
+  def validation_result_for_entry(entry)
+    validation_results[hexkey_for_entry(entry)] || { errors: [], warnings: [], information: [] }
   end
 
   def destroy
