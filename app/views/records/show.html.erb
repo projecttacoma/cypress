@@ -75,7 +75,14 @@
       <% end %>
       </ul>
     </div>
-    <% patient_resource = @record.patient.entry.find { |e| e.resource.resourceType == 'Patient' }.resource %>
-    <%= react_component("HelloWorld", { data: patient_resource, patient: patient_resource, errors: patient_resource.validate }) %>
+    <% @relevant_entries.sort_by { |e| e.resource.resourceType }.each do |entry| %>
+      <div class="row row-border">
+        <% resource = entry.resource %>
+        <h4><%= resource.resourceType %></h4>
+        <% errors = Inferno::FHIRModelsValidator.new.validate(resource, nil, resource&.meta&.profile&.first) %>
+        <!-- Only show errors, warnings appear to be wonky -->
+        <%= react_component("HelloWorld", { data: resource, errors: errors[:errors] }) %>
+      </div>
+    <% end %>
   </div>
 </div>

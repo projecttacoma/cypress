@@ -20,9 +20,8 @@ class HelloWorld extends React.Component {
   	let data = { /* ... */ };
     return (
       <React.Fragment>
-        <div><PatientVisualizer patient={this.props.patient} /></div>
-        <div>FHIR Resource: <ObjectInspector data={ this.props.data } /></div>
-        <div>Errors: <ObjectInspector data={ this.props.errors } /></div>
+        <div class="col-md-6">FHIR Resource: <ObjectInspector data={ this.props.data } /></div>
+        <div class="col-md-6">Errors: <ObjectInspector data={ this.props.errors } /></div>
       </React.Fragment>
     );
   }
