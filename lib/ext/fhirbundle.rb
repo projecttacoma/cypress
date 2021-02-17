@@ -67,12 +67,8 @@ class PatientBundle
     patient_resource.gender
   end
 
-  def relevant_entries_for_measure_report(patient_measure_report)
-    # if a evaluated_resources don't exist, return all entries
-    return patient.entry unless patient_measure_report&.evaluated_resources
-
-    relevant_entry_ids = patient_measure_report.evaluated_resources
-    patient.entry.select { |e| relevant_entry_ids.include?("#{e.resource.resourceType}/#{e.resource.id}") }
+  def retrieve_entries(resource_urls)
+    patient.entry.select { |e| resource_urls.include?("#{e.resource.resourceType}/#{e.resource.id}") }
   end
 
   private
