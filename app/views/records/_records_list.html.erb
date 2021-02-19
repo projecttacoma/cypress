@@ -38,24 +38,9 @@
       <% end %>
     </tr>
   </thead>
-  <% if measure&.name == 'what' %>
+  <!-- TODO: Add back calculation totals in footer -->
   <tfoot style="border-top: 2px solid #ddd;">
-      <tr>
-        <%# add an extra cell for delete column -> could be delete all option? %>
-        <% if @vendor %>
-          <td></td>
-        <% end %>
-        <th scope="row">Total</th>
-        <td></td>
-        <td></td>
-          <% pop_sums(result_values)&.each do |_, value| %>
-            <td class="text-center">
-              <%= render 'calculation_result_icon', :result => value, :episode_of_care => measure.calculation_method == 'EPISODE_OF_CARE'  %>
-            </td>
-          <% end %>
-      </tr>
   </tfoot>
-  <% end %>
 
   <tbody>
     <%= render 'calculation_results',
