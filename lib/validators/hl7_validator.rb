@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# TODO: This class has been copied from https://github.com/onc-healthit/inferno
+# Refactor to make this class more CVU-FHIR specific
 module Inferno
   # A validator that calls out to the HL7 validator API
   class HL7Validator
