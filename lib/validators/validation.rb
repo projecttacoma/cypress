@@ -2,6 +2,8 @@
 
 require 'json'
 
+# TODO: This class has been copied from https://github.com/onc-healthit/inferno
+# Refactor to make this class more CVU-FHIR specific
 module Inferno
   class ValidationUtil
     def self.get_resource(json, version)
