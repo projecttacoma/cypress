@@ -16,13 +16,17 @@ module Cypress
 
     def execute(save = true)
       results = @measures.map do |measure|
-        request_for(measure, save)
+        @patients.map do |patient|
+          request_for(measure, patient, save)
+        end.flatten
       end.flatten
       results
     end
 
-    def request_for(measure, _save = true)
-      post_data = { patients: @patients.map(&:patient_bundle_hash), measure: measure.measure_bundle_hash, options: @options }
+    # TODO: The fqm-execution-service seems to have issues when passing in multiple patients
+    # After this is fixed, we can go back to using @patients.map(&:patient_bundle_hash) instead of passing in a single patient
+    def request_for(measure, patient, _save = true)
+      post_data = { patients: [patient.patient_bundle_hash], measure: measure.measure_bundle_hash, options: @options }
       post_data = post_data.to_json(methods: %i[_type])
       begin
         response = RestClient::Request.execute(method: :post, url: self.class.create_connection_string, timeout: 120,
