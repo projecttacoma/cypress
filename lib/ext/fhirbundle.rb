@@ -71,6 +71,11 @@ class PatientBundle
     patient.entry.select { |e| resource_urls.include?("#{e.resource.resourceType}/#{e.resource.id}") }
   end
 
+  def destroy
+    PatientMeasureReport.where(patient_id: id).destroy_all
+    delete
+  end
+
   private
 
   def patient_resource
