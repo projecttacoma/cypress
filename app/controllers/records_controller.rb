@@ -38,7 +38,7 @@ class RecordsController < ApplicationController
 
   def scoop_and_filter(measure_id)
     patient_measure_report = @results.select { |pmr| pmr.measure_id.to_s == measure_id }.first
-    @record.relevant_entries_for_measure_report(patient_measure_report)
+    entries_for_measure_report(patient_measure_report)
   end
 
   def entries_for_measure_report(patient_measure_report)
