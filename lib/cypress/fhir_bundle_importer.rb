@@ -67,7 +67,7 @@ module Cypress
     def self.unpack_and_store_patients(zip, bundle)
       patient_files = zip.glob(File.join(SOURCE_ROOTS[:patients], '**', '*.json'))
       patient_files.each_with_index do |patient_file, index|
-        patient_bundle = PatientBundle.new
+        patient_bundle = BundlePatientBundle.new
         patient_bundle.patient_bundle_hash = JSON.parse(patient_file.get_input_stream.read, max_nesting: 100)
         bundle.fhir_patient_bundles << patient_bundle
         report_progress('patients', (index * 100 / patient_files.length)) if (index % 10).zero?

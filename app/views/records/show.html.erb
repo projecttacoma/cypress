@@ -5,51 +5,59 @@
 
 <div class="col-md-6" style="overflow-y: scroll; height:100vh;">
   <h2>Measure Information</h2>
-  <table class="table table-condensed">
-    <thead>
-      <tr>
-        <td></td>
-        <% pop_keys.each do |population| %>
-          <th scope="col" class="text-center"><%= population_label(@bundle, population) %></th>
-        <% end %>
-      </tr>
-    </thead>
-    <tbody>
-      <% @results.each_with_index do |result, index| %>
-        <% measure_name = result.measure.split('/').last %>
-        <% result.group.each do |population_group| %>
+  <% {
+        @continuous_measures => RecordsHelper::CV_POPULATION_KEYS,
+        @proportion_measures => RecordsHelper::PROPORTION_POPULATION_KEYS
+      }.each do |measures, pop_keys| %>
+    <% if measures.length.positive? %>
+      <table class="table table-condensed">
+        <thead>
           <tr>
-            <th class="abbreviated" scope="row">
-              <%= "#{measure_name} (#{population_group.id})" %>
-            </th>
+            <td></td>
             <% pop_keys.each do |population| %>
-              <td class="text-center">
-              <% values = population_group.population.select { |p| p.code.coding[0].code == pop_map[population] }
-              value = values.count.positive? ? values.first.count : nil %>
-              <% if value && value.positive? %>
-                <span class="sr-only">Pass</span>
-                <span class="fa-stack result-marker">
-                  <%= icon('fas fa-stack-2x', 'circle', :"aria-hidden" => true) %>
-                  <strong class="fa-stack-1x result-text"><span class="sr-only">value of </span><%= value %></strong>
-                </span>
-              <% else %>
-                <span class="sr-only">Fail</span>
-                <%= icon('far fa-2x empty-marker', 'circle', :"aria-hidden" => true) %>
-              <% end %>
-            </td>
+              <th scope="col" class="text-center"><%= population_label(@bundle, population) %></th>
             <% end %>
           </tr>
-        <% end %>
-        <% next unless result.text %>
-        <tr><td colspan="<%= pop_keys.size + 1 %>">
-          <button class="collapsible">View Logic Highlighting</button>
-          <div class="collapse-content">
-            <%= render 'patient_measure_highlighting', :html => result.text.div, :index => index, :measure_name => measure_name %>
-          </div>
-        </td></tr>
-      <% end %>
-    </tbody>
-  </table>
+        </thead>
+        <tbody>
+          <% @results.select { |result| measures.map(&:id).include?(result.measure_id) }.map(&:measure_report).each_with_index do |result, index|
+              measure_name = result.measure.split('/').last.split('-').last
+              grouped_results = group_calculation_results(result)
+              grouped_results.each do |grouped_result| %>
+              <tr>
+                <th class="abbreviated" scope="row">
+                  <%= "#{measure_name} (#{grouped_result.display_name})" %>
+                </th>
+                <% pop_keys.each do |population| %>
+                  <td class="text-center">
+                  <% values = grouped_result.populations.select { |p| p.code.coding[0].code == RecordsHelper::POPULATION_MAP[population] }
+                  value = values.count.positive? ? values.first.count : nil %>
+                  <% if value && value.positive? %>
+                    <span class="sr-only">Pass</span>
+                    <span class="fa-stack result-marker">
+                      <%= icon('fas fa-stack-2x', 'circle', :"aria-hidden" => true) %>
+                      <strong class="fa-stack-1x result-text"><span class="sr-only">value of </span><%= value %></strong>
+                    </span>
+                  <% else %>
+                    <span class="sr-only">Fail</span>
+                    <%= icon('far fa-2x empty-marker', 'circle', :"aria-hidden" => true) %>
+                  <% end %>
+                </td>
+                <% end %>
+              </tr>
+            <% end %>
+            <% next unless result.text %>
+            <tr><td colspan="<%= pop_keys.size + 1 %>">
+              <button class="collapsible">View Logic Highlighting</button>
+              <div class="collapse-content">
+                <%= render 'patient_measure_highlighting', :html => result.text.div, :index => index, :measure_name => measure_name %>
+              </div>
+            </td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  <% end %>
 </div>
   
   <!-- TODO: Add in Clinical Data -->

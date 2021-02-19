@@ -1,35 +1,64 @@
 <% patients.sort_by { |patient| full_name(patient) }.each do |r| %>
-  <tr>
-    <% if @vendor %>
-        <td>
-          <%= bootstrap_form_tag url: vendor_records_path(@vendor), html: {class: "delete_vendor_patients_form"} do |f| %>
-             <%= f.check_box r.id, label: "", title: "delete_patient", label_class: "btn btn-checkbox"%>
+  <% if measure %>
+    <% result_values.select { |rv| rv.patient_id == r.id }&.each do |result| %>
+      <% grouped_results = group_calculation_results(result.measure_report) %>
+      <% grouped_results.each_with_index do |grouped_result, index| %>    
+      <tr>
+        <% if index == 0 %>
+          <% if @vendor %>
+              <td>
+                <%= bootstrap_form_tag url: vendor_records_path(@vendor), html: {class: "delete_vendor_patients_form"} do |f| %>
+                   <%= f.check_box r.id, label: "", title: "delete_patient", label_class: "btn btn-checkbox"%>
+                <% end %>
+              </td>
+            <td><%= link_to full_name(r), vendor_record_path(:vendor_id => @vendor.id, :id => r.id, :bundle_id => @bundle.id) %></td>
+          <% else %>
+            <td><%= link_to full_name(r), bundle_record_path(bundle, r) %></td>
           <% end %>
-        </td>
-      <td><%= link_to full_name(r), vendor_record_path(:vendor_id => @vendor.id, :id => r.id, :bundle_id => @bundle.id) %></td>
-    <% else %>
-      <td><%= link_to full_name(r), bundle_record_path(bundle, r) %></td>
-    <% end %>
-    <td><%= r.birthDate %></td>
-    <td><%= r.gender %></td>
-    <% if measure %>
-      <% result_values[r.id]&.each do |_, value| %>
-        <td class="text-center">
-          <!-- This is the relevant piece of the calculation_result_icon partial ported over to here. Rendering each circle in its own partial is far too slow and causes the application to take up to 8 seconds longer to load on some pages. -->
+          <td><%= r.birthDate %></td>
+          <td><%= r.gender %></td>
+        <% else %>
+          <% if @vendor %>
+            <td></td>
+          <% end %>
+          <td></td>
+          <td></td>
+          <td></td>
+        <% end %>
+        <td><%= "#{measure.name} (#{grouped_result.display_name})" %></td>
+        <% pop_keys.each do |population| %>
+          <td class="text-center">
+          <% values = grouped_result.populations.select { |p| p.code.coding[0].code == RecordsHelper::POPULATION_MAP[population] }
+          value = values.count.positive? ? values.first.count : nil %>
           <% if value && value.positive? %>
             <span class="sr-only">Pass</span>
             <span class="fa-stack result-marker">
               <%= icon('fas fa-stack-2x', 'circle', :"aria-hidden" => true) %>
-              <% unless value == 1 && measure.calculation_method != 'EPISODE_OF_CARE' %>
-                <strong class="fa-stack-1x result-text"><span class="sr-only">value of </span><%= value %></strong>
-              <% end %>
+              <strong class="fa-stack-1x result-text"><span class="sr-only">value of </span><%= value %></strong>
             </span>
           <% else %>
             <span class="sr-only">Fail</span>
             <%= icon('far fa-2x empty-marker', 'circle', :"aria-hidden" => true) %>
           <% end %>
         </td>
+        <% end %>      
+      </tr>
       <% end %>
     <% end %>
-  </tr>
+  <% else %>
+      <tr>
+        <% if @vendor %>
+            <td>
+              <%= bootstrap_form_tag url: vendor_records_path(@vendor), html: {class: "delete_vendor_patients_form"} do |f| %>
+                 <%= f.check_box r.id, label: "", title: "delete_patient", label_class: "btn btn-checkbox"%>
+              <% end %>
+            </td>
+          <td><%= link_to full_name(r), vendor_record_path(:vendor_id => @vendor.id, :id => r.id, :bundle_id => @bundle.id) %></td>
+        <% else %>
+          <td><%= link_to full_name(r), bundle_record_path(bundle, r) %></td>
+        <% end %>
+        <td><%= r.birthDate %></td>
+        <td><%= r.gender %></td>
+      </tr>
+  <% end %>
 <% end %>

@@ -1,6 +1,6 @@
 class RecordsController < ApplicationController
   include RecordsHelper
-  before_action :set_record_source, only: %i[index show]
+  before_action :set_record_source, only: %i[index show by_measure]
 
   respond_to :js, only: [:index]
 
@@ -27,37 +27,31 @@ class RecordsController < ApplicationController
 
   def show
     @record = @source.fhir_patient_bundles.find(params[:id])
-    # TODO: Filter results by patient and measures.
-    patient_measure_reports = PatientMeasureReport.where(patient_id: @record.id)
-    @results = patient_measure_reports.map(&:measure_report)
-    @measures = MeasureBundle.find(patient_measure_reports.map(&:measure_id))
-    @relevant_entries = if params[:measure_id]
-                          patient_measure_report = patient_measure_reports.select { |pmr| pmr.measure_id.to_s == params[:measure_id] }.first
-                          @record.relevant_entries_for_measure_report(patient_measure_report)
-                        else
-                          @record.patient.entry
-                        end
-    # @measures = (@vendor ? @bundle : @source).measures.where(:_id.in => @results.map(&:measure_id))
-    # @hqmf_id = params[:hqmf_id]
-    # @continuous_measures = @measures.where(measure_scoring: 'CONTINUOUS_VARIABLE').sort_by { |m| [m.cms_int] }
-    # @proportion_measures = @measures.where(measure_scoring: 'PROPORTION').sort_by { |m| [m.cms_int] }
-    # @result_measures = @measures.where(hqmf_set_id: { '$in': APP_CONSTANTS['result_measures'].map(&:hqmf_set_id) }).sort_by { |m| [m.cms_int] }
+    @results = PatientMeasureReport.where(patient_id: @record.id).keep_if(&:in_ipp?)
+    @measures = MeasureBundle.find(@results.map(&:measure_id))
+    @relevant_entries = params[:measure_id] ? scoop_and_filter(params[:measure_id]) : @record.patient.entry
+    @continuous_measures = @measures.select { |measure| measure.measure_scoring == 'continuous-variable' }
+    @proportion_measures = @measures.select { |measure| measure.measure_scoring == 'proportion' }
     expires_in 1.week, public: true
     add_breadcrumb 'Patient: ' + @record.givenNames.join(' ') + ' ' + @record.familyName, :record_path
   end
 
-  # TODO: This will need to be update for FHIR Patient
-  # def by_measure
-  #   @patients = @vendor.patients.includes(:calculation_results).where(bundleId: @bundle.id.to_s) if @vendor
-  #   @patients ||= @source.patients.includes(:calculation_results)
+  def scoop_and_filter(measure_id)
+    patient_measure_report = @results.select { |pmr| pmr.measure_id.to_s == measure_id }.first
+    @record.relevant_entries_for_measure_report(patient_measure_report)
+  end
 
-  #   if params[:measure_id]
-  #     measures = @vendor ? @bundle.measures : @source.measures
-  #     @measure = measures.find_by(hqmf_id: params[:measure_id])
-  #     @population_set_hash = params[:population_set_hash] || @measure.population_sets_and_stratifications_for_measure.first
-  #     expires_in 1.week, public: true
-  #   end
-  # end
+  def by_measure
+    source_patients = @vendor&.fhir_patient_bundles
+    source_patients ||= @source&.fhir_patient_bundles
+
+    patient_ids = source_patients.map(&:id)
+    if params[:measure_id]
+      @results = PatientMeasureReport.where(patient_id: { '$in': patient_ids }, measure_id: params[:measure_id]).keep_if(&:in_ipp?)
+      @patients = PatientBundle.find(@results.map(&:patient_id))
+      @measure = MeasureBundle.find(params[:measure_id])
+    end
+  end
 
   def download_mpl
     if BSON::ObjectId.legal?(params[:format])
@@ -114,15 +108,15 @@ class RecordsController < ApplicationController
   def measures_for_source
     Rails.cache.fetch("#{@source.cache_key}/measure_dropdown") do
       if @vendor
-        @bundle.fhir_measure_bundles.order_by(name: 1).map do |m|
+        @bundle.fhir_measure_bundles.map do |m|
           { label: m.name,
             value: by_measure_vendor_records_path(@vendor, measure_id: m.id, bundle_id: @bundle.id) }
-        end
+        end.sort_by(&:label)
       else
-        @source.fhir_measure_bundles.order_by(name: 1).map do |m|
+        @source.fhir_measure_bundles.map do |m|
           { label: m.name,
             value: by_measure_bundle_records_path(@bundle, measure_id: m.id) }
-        end
+        end.sort_by(&:label)
       end.to_json.html_safe
     end
   end

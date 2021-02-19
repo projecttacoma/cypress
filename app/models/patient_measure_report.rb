@@ -14,4 +14,14 @@ class PatientMeasureReport
   def evaluated_resources
     measure_report.evaluatedResource.map(&:reference)
   end
+
+  def in_ipp?
+    measure_report.group.any? { |mrg| group_with_ipp?(mrg) }
+  end
+
+  private
+
+  def group_with_ipp?(group)
+    group.population.any? { |pop| pop.count.positive? }
+  end
 end

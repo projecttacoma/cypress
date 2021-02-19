@@ -1,11 +1,15 @@
 <!-- Only grab measure records and result values once to avoid duplicate queries -->
 <% if measure && patients.length.positive? %>
-  <% measure_records = records_by_measure(patients, measure, vendor) %>
-  <% population_keys = measure.population_keys %>
-  <% result_values = get_result_values(patients, [measure], measure.key_for_population_set(population_set_hash), population_keys, 'patient_id') %>
+  <% population_keys = if measure.measure_scoring == 'continuous-variable'
+                          RecordsHelper::CV_POPULATION_KEYS
+                        elsif measure.measure_scoring == 'proportion'
+                          RecordsHelper::PROPORTION_POPULATION_KEYS
+                        else
+                          []
+                        end %>
 <% end %>
-<h1><%= measure ? measure_display_name(measure, population_set_hash) : 'All' %> Patients</h1>
-<% if (measure && measure_records.length.positive?) || (!measure  && patients.length.positive?) %>
+<h1><%= measure ? measure.name : 'All' %> Patients</h1>
+<% if (measure && patients.length.positive?) || (!measure  && patients.length.positive?) %>
 
 <% if @vendor %>
   <%= link_to "View Patient Analytics", patient_analysis_vendor_records_path(:vendor_id => @vendor.id, :bundle_id => @bundle.id) %>
@@ -27,38 +31,24 @@
       <th scope="col">DOB</th>
       <th scope="col">Gender</th>
       <% if measure && !hide_patient_calculation?%>
+        <th scope="col">Population Group</th>
         <% population_keys.each do |population| %>
           <th scope="col" class="text-center"><%= population_label(bundle, population) %></th>
         <% end %>
       <% end %>
     </tr>
   </thead>
-  <% if measure %>
+  <!-- TODO: Add back calculation totals in footer -->
   <tfoot style="border-top: 2px solid #ddd;">
-      <!-- will show aggregate record populations -->
-      <tr>
-        <%# add an extra cell for delete column -> could be delete all option? %>
-        <% if @vendor %>
-          <td></td>
-        <% end %>
-        <th scope="row">Total</th>
-        <td></td>
-        <td></td>
-          <% pop_sums(result_values)&.each do |_, value| %>
-            <td class="text-center">
-              <%= render 'calculation_result_icon', :result => value, :episode_of_care => measure.calculation_method == 'EPISODE_OF_CARE'  %>
-            </td>
-          <% end %>
-      </tr>
   </tfoot>
-  <% end %>
 
   <tbody>
     <%= render 'calculation_results',
-      :patients => measure ? measure_records : patients,
-      :result_values => result_values,
+      :patients => patients,
+      :result_values => results,
       :bundle => bundle,
-      :measure => measure
+      :measure => measure,
+      :pop_keys => population_keys
     %>
   </tbody>
 </table>
