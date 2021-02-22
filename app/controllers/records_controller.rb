@@ -29,46 +29,11 @@ class RecordsController < ApplicationController
     @record = @source.fhir_patient_bundles.find(params[:id])
     @results = PatientMeasureReport.where(patient_id: @record.id).keep_if(&:in_ipp?)
     @measures = MeasureBundle.find(@results.map(&:measure_id))
-    @relevant_entries = params[:measure_id] ? scoop_and_filter(params[:measure_id]) : @record.patient.entry
+    @relevant_entries = params[:measure_id] ? @record.scoop_and_filter(params[:measure_id]) : @record.patient.entry
     @continuous_measures = @measures.select { |measure| measure.measure_scoring == 'continuous-variable' }
     @proportion_measures = @measures.select { |measure| measure.measure_scoring == 'proportion' }
     expires_in 1.week, public: true
     add_breadcrumb 'Patient: ' + @record.givenNames.join(' ') + ' ' + @record.familyName, :record_path
-  end
-
-  def scoop_and_filter(measure_id)
-    patient_measure_report = @results.select { |pmr| pmr.measure_id.to_s == measure_id }.first
-    entries_for_measure_report(patient_measure_report)
-  end
-
-  def entries_for_measure_report(patient_measure_report)
-    evaluated_resources = patient_measure_report&.evaluated_resources
-    # find the entries directly referenced in the measure report (as evaluated_resources)
-    relevant_entries = @record.retrieve_entries(evaluated_resources)
-    # find the entries that are linked to the evaluated_resources
-    relevant_entries.concat @record.retrieve_entries(find_linked_entries(relevant_entries) - evaluated_resources)
-  end
-
-  def find_linked_entries(relevant_entries)
-    linked_entries = []
-    # Iterate over relevant_entries
-    relevant_entries.each do |entry|
-      entry_json = JSON.parse(entry.resource.to_json)
-      linked_entries.concat find_all_values_for(entry_json, 'reference')
-    end
-    linked_entries.uniq
-  end
-
-  def find_all_values_for(entry, key, result = [])
-    result << entry[key] if entry[key]
-    # go through has, store each value for the key
-    entry.values.each do |hash_value|
-      values = hash_value.is_a?(Array) ? hash_value : [hash_value]
-      values.each do |value|
-        find_all_values_for(value, key, result) if value.is_a? Hash
-      end
-    end
-    result.compact
   end
 
   def by_measure

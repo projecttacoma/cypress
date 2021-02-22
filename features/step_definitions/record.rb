@@ -24,6 +24,7 @@ end
 When(/^the user visits the records page$/) do
   visit '/records/'
   @bundle = Bundle.default
+
   @other_bundle = Bundle.where('$or' => [{ 'active' => false }, { :active.exists => false }]).sample
   @measure = @bundle.fhir_measure_bundles.first unless @bundle.fhir_measure_bundles.count.eql? 0
 end
@@ -85,7 +86,7 @@ And(/^the user should see patient analytics$/) do
 end
 
 And(/^the user searches for a measure$/) do
-  page.fill_in 'search_measures', with: @measure.description
+  page.fill_in 'search_measures', with: @measure.name
 end
 
 And(/^the user selects a measure from the dropdown$/) do
@@ -98,10 +99,11 @@ end
 
 # TODO: measure_display_name will be different
 Then(/^the user should see results for that measure$/) do
-  page.assert_text measure_display_name(@measure, @measure.population_sets_and_stratifications_for_measure.first) + ' Patients'
-  records = records_by_measure(@vendor ? @vendor.patients.where(bundleId: @bundle.id.to_s) : @bundle.patients, @measure, @vendor)
+  page.assert_text @measure.name + ' Patients'
+  patient_ids = @vendor ? @vendor.fhir_patient_bundles.where(bundleId: @bundle.id.to_s).map(&:id) : @bundle.fhir_patient_bundles.map(&:id)
+  results = PatientMeasureReport.where(patient_id: { '$in': patient_ids }, measure_id: @measure.id).keep_if(&:in_ipp?)
 
-  assert page.has_selector?('table tbody tr', count: records.length), 'different number'
+  assert page.has_selector?('table tbody tr', count: results.length), 'different number'
   assert page.has_selector?('.result-marker'), 'no result marker'
 end
 

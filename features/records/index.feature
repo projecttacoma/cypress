@@ -46,11 +46,11 @@ Scenario: Successful switch bundles
   And the user selects a bundle
   Then the user should see records for that bundle
 
-#Scenario: Successful filter records
-  #When the user visits the records page
-  #And the user searches for a measure
-  #And the user selects a measure from the dropdown
-  #Then the user should see results for that measure
+Scenario: Successful filter records
+  When the user visits the records page
+  And the user searches for a measure
+  And the user selects a measure from the dropdown
+  Then the user should see results for that measure
 
 Scenario: View Vendor Patient List Page
   When the user visits the vendor records page
