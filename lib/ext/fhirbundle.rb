@@ -76,8 +76,7 @@ class PatientBundle
     patient.entry.each do |entry|
       resource = entry.resource
       profile_url = resource&.meta&.profile&.first
-      validator_klass = profile_url ? Inferno::ValidationUtil.definitions[profile_url] : nil
-      validation_results[hexkey_for_entry(entry)] = validator.validate(resource, validator_klass, profile_url)
+      validation_results[hexkey_for_entry(entry)] = validator.validate(resource, profile_url)
     end
     save
   end
