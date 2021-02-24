@@ -99,7 +99,7 @@ class PatientBundle
   end
 
   def hexkey_for_entry(entry)
-    Digest::SHA2.hexdigest("#{entry.resource.resourceType} #{entry.resource.resourceType}")
+    Digest::SHA2.hexdigest("#{entry.resource.resourceType} #{entry.resource.id}")
   end
 
   def entries_for_measure_report(patient_measure_report)
