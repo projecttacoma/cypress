@@ -74,3 +74,9 @@ main:focus { outline: none; }
 .valueset-listitem {
   padding: .5em;
 }
+
+.patient-view {
+  .health-record__header {
+    color: $brand-primary;
+  }
+}
