@@ -29,23 +29,36 @@ module Cypress
       post_data = { patients: [patient.patient_bundle_hash], measure: measure.measure_bundle_hash, options: @options }
       post_data = post_data.to_json(methods: %i[_type])
       begin
-        response = RestClient::Request.execute(method: :post, url: self.class.create_connection_string, timeout: 120,
+        response = RestClient::Request.execute(method: :post, url: self.class.create_calculation_connection_string, timeout: 120,
                                                payload: post_data, headers: { content_type: 'application/json' })
       rescue => e
         raise e.to_s || 'Calculation failed without an error message'
       end
-      results = JSON.parse(response)
+      calculation_results = JSON.parse(response)
+
+      begin
+        response = RestClient::Request.execute(method: :post, url: self.class.create_gaps_connection_string, timeout: 120,
+                                               payload: post_data, headers: { content_type: 'application/json' })
+        gaps_results = JSON.parse(response)
+      rescue
+      end
 
       patient_result_hash = {}
-      results.each do |result|
+      calculation_results.each do |result|
         patient_id = result.subject.reference.split('Patient/')[1]
-        pmr = PatientMeasureReport.create(measure_report_hash: result, patient_id: @fqm_patient_mapping[patient_id], measure_id: measure.id)
+        pmr = PatientMeasureReport.create(measure_report_hash: result, care_gap_hash: gaps_results,
+                                          patient_id: @fqm_patient_mapping[patient_id], measure_id: measure.id)
         patient_result_hash[patient_id] = pmr.measure_report
       end
       patient_result_hash.values
     end
 
-    def self.create_connection_string
+    def self.create_gaps_connection_string
+      config = Rails.application.config
+      "http://#{config.fqm_host}:#{config.fqm_port}/Measure/$care-gaps"
+    end
+
+    def self.create_calculation_connection_string
       config = Rails.application.config
       "http://#{config.fqm_host}:#{config.fqm_port}/calculateMeasureReports"
     end
