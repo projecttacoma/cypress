@@ -98,6 +98,29 @@ class VendorsRecordsControllerTest < ActionController::TestCase
     end
   end
 
+  test 'should validate vendor patients' do
+    for_each_logged_in_user([ADMIN]) do
+      # Clear out old vendor patients (loaded from factories)
+      @vendor.fhir_patient_bundles.destroy
+
+      filename = Rails.root.join('test', 'fixtures', 'artifacts', 'patient_upload_validation_errors.zip')
+      good_zip = fixture_file_upload(filename, 'application/zip')
+      perform_enqueued_jobs do
+        post :create, params: { file: good_zip, vendor_id: @vendor.id, bundle_id: @bundle2.id }
+        assert_redirected_to({ controller: 'records', action: 'index', bundle_id: @bundle2.id }, 'response should redirect to index')
+
+        # use vendor id from redirect_to_url "http://test.host/vendors/#{id}/records"
+        get :index, params: { vendor_id: redirect_to_url.split('/')[-2], bundle_id: @bundle2.id }
+        @vendor.reload
+        vendor_patient = @vendor.fhir_patient_bundles.first
+        patient_entry = vendor_patient.patient.entry.find { |e| e.resource.resourceType == 'Patient' }
+        validation_results = vendor_patient.validation_result_for_entry(patient_entry)
+
+        assert_equal 2, validation_results.errors.size, 'Patient entry should have 2 errors'
+      end
+    end
+  end
+
   # TODO: Bring back shift
   # test 'should create vendor patients and shift to match bundle' do
   #   for_each_logged_in_user([ADMIN, ATL, OWNER]) do

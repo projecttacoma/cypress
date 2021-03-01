@@ -22,7 +22,7 @@ class VendorPatientUploadJob < ApplicationJob
     # do patient calculation against bundle
     unless patients.empty?
       config = Rails.application.config
-      validator = Inferno::HL7Validator.new("http://#{config.hl7_host}:#{config.hl7_port}")
+      validator = HL7Validator.new("http://#{config.hl7_host}:#{config.hl7_port}")
       generate_calculations(patients, bundle, vendor_id)
       patients.each { |patient| patient.validate(validator) }
       # PatientAnalysisJob.perform_later(bundle.id.to_s, vendor_id)

@@ -115,6 +115,7 @@ jobs:
     - name: Install dependencies
       run: |
         . $HOME/.nvm/nvm.sh
+        docker run -d -p 4567:4567 --env DISABLE_TX=true infernocommunity/fhir-validator-service
         nvm install 10.16
         nvm use stable
         bundle install

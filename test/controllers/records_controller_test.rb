@@ -44,7 +44,7 @@ class RecordsControllerTest < ActionController::TestCase
   test 'should get show' do
     # do this for all users
     for_each_logged_in_user([ADMIN, ATL, OWNER, VENDOR, OTHER_VENDOR]) do
-      get :show, params: { id: @bundle.fhir_patient_bundles.find(@patient_id) }
+      get :show, params: { id: @patient_id }
       assert_response :success, "#{@user.email} should have access "
       assert assigns(:record)
     end

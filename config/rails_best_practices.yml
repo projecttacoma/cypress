@@ -41,8 +41,6 @@ RemoveUnusedMethodsInHelpersCheck: {
 }
 RemoveUnusedMethodsInModelsCheck: {
   except_methods: [
-    'ExecutionError#by_validation_type',
-    'ExecutionError#submission_errors',
     'User#active_for_authentication?',
     'User#inactive_message'
   ]
