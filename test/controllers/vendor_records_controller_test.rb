@@ -103,7 +103,7 @@ class VendorsRecordsControllerTest < ActionController::TestCase
       # Clear out old vendor patients (loaded from factories)
       @vendor.fhir_patient_bundles.destroy
 
-      filename = Rails.root.join('test', 'fixtures', 'artifacts', 'good_patient_upload.zip')
+      filename = Rails.root.join('test', 'fixtures', 'artifacts', 'patient_upload_validation_errors.zip')
       good_zip = fixture_file_upload(filename, 'application/zip')
       perform_enqueued_jobs do
         post :create, params: { file: good_zip, vendor_id: @vendor.id, bundle_id: @bundle2.id }
