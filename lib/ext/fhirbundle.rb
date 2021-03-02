@@ -12,7 +12,9 @@ class MeasureBundle
   delegate :version, to: :measure_resource
 
   def measure
-    FHIR::Bundle.new(measure_bundle_hash)
+    Rails.cache.fetch("#{cache_key}/measure") do
+      FHIR::Bundle.new(measure_bundle_hash)
+    end
   end
 
   def effective_period
@@ -26,8 +28,9 @@ class MeasureBundle
   private
 
   def measure_resource
-    # find actual patient resource (TODO: cache?)
-    measure.entry.find { |e| e.resource.resourceType == 'Measure' }.resource
+    Rails.cache.fetch("#{cache_key}/measure_resource") do
+      measure.entry.find { |e| e.resource.resourceType == 'Measure' }.resource
+    end
   end
 end
 
@@ -42,7 +45,9 @@ class PatientBundle
   field :validation_results, type: Hash, default: {}
 
   def patient
-    FHIR::Bundle.new(patient_bundle_hash)
+    Rails.cache.fetch("#{cache_key}/patient") do
+      FHIR::Bundle.new(patient_bundle_hash)
+    end
   end
 
   # TODO: rename given_names
@@ -94,8 +99,9 @@ class PatientBundle
   private
 
   def patient_resource
-    # find actual patient resource
-    patient.entry.find { |e| e.resource.resourceType == 'Patient' }.resource
+    Rails.cache.fetch("#{cache_key}/patient_resource") do
+      patient.entry.find { |e| e.resource.resourceType == 'Patient' }.resource
+    end
   end
 
   def hexkey_for_entry(entry)
